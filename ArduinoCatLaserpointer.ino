@@ -1,73 +1,32 @@
-#include <Servo.h>
+#include "ArduinoCatLaserpointer.h"
 
-#include <SPI.h>
-#include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-
-#include "OneButton.h"
-
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 32 // OLED display height, in pixels
-#define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
-#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
-#define RST_STATE 1 //1-> Reset=close switch, 0->Reset=open switch
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-
-#define BUTTON_LEFT 7
-#define BUTTON_RIGHT 8
-#define BUTTON_ENTER 9
-#define BUTTON_ESCAPE 10
+MD_Menu::userNavAction_t menuNavAction = MD_Menu::NAV_NULL;
 
 void laufen();
 void sweep(int AFrom, int ATo, int AHorizontalDirection, bool ABack);
-void moveWithSimulatedShaking (int AFrom, int ATo, int AHorizontalDirection);
+void moveWithSimulatedShaking(int AFrom, int ATo, int AHorizontalDirection);
 void sleep();
-void randomMoves ();
+void randomMoves();
 void moveAxis(int& interval, int& pos, int& tunraround, int axisMin, int axisMax);
 void triggerLaser();
 
-void ShowOnDisplay(String text);
-void ShowLeftOnDisplay();
-void ShowRightOnDisplay();
-void ShowEnterOnDisplay();
-void ShowEscapeOnDisplay();
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, SCREEN_RESET);
 
+OneButton ButtonLeft = OneButton(BUTTON_LEFT, true, true);
+OneButton ButtonRight = OneButton(BUTTON_RIGHT, true, true);
+OneButton ButtonEnter = OneButton(BUTTON_ENTER, true, true);
+OneButton ButtonEscape = OneButton(BUTTON_ESCAPE, true, true);
 
-OneButton ButtonLeft = OneButton(
-  BUTTON_LEFT,    // Input pin for the button
-  true,           // Button is active LOW
-  true            // Enable internal pull-up resistor
-);
+byte X_MIN = 35;
+byte X_MAX = 130;
+byte Y_MIN = 90;
+byte Y_MAX = 135;
+#define MIN_DISTANCE 15
 
-OneButton ButtonRight = OneButton(
-  BUTTON_RIGHT,  // Input pin for the button
-  true,           // Button is active LOW
-  true            // Enable internal pull-up resistor
-);
+const int MIN_DELAY = 20;  // Sets the minimum wait time in milliseconds between  each movement step
+const int MAX_DELAY = 50;  // Sets the maximum wait time in milliseconds between  each movement step
 
-OneButton ButtonEnter = OneButton(
-  BUTTON_ENTER,      // Input pin for the button
-  true,           // Button is active LOW
-  true            // Enable internal pull-up resistor
-);
-
-OneButton ButtonEscape = OneButton(
-  BUTTON_ESCAPE,      // Input pin for the button
-  true,           // Button is active LOW
-  true            // Enable internal pull-up resistor
-);
-
-const int X_MIN = 35;
-const int X_MAX = 130;
-const int Y_MIN = 90;
-const int Y_MAX = 135;
-const int MIN_DISTANCE = 15;
-
-const int MIN_DELAY = 20; // Sets the minimum wait time in milliseconds between  each movement step
-const int MAX_DELAY = 50; // Sets the maximum wait time in milliseconds between  each movement step
-
-const uint32_t RUNTIME   = 180000;    // Time for each "round" until device goes to sleep
+const uint32_t RUNTIME = 180000;      // Time for each "round" until device goes to sleep
 const uint32_t SLEEPTIME = 10800000;  // Time for how long the device sleeps until it reactivates itself
 
 const int MIN_LASER_OFF_TICKS = 5;
@@ -76,12 +35,10 @@ const int MAX_LASER_OFF_TICKS = 100;
 const int MIN_AXIS_MOVE_DECISSION_TICKS = 20;
 const int MAX_AXIS_MOVE_DECISSION_TICKS = 100;
 
-const int X_SERVO_PIN = 5;
-const int Y_SERVO_PIN = 6;
-const int LASER_PIN   = 4;
-const int BUTTON_PIN  = 2;
-
-enum axisToMoveEnum {none, xAndY, xOnly, yOnly};
+enum axisToMoveEnum { none,
+                      xAndY,
+                      xOnly,
+                      yOnly };
 
 int xInterval = 1;
 int yInterval = 1;
@@ -96,6 +53,10 @@ int yPos = 90;
 int laserOffDuration = 0;
 int laserOffTicks = 0;
 
+int axisToMoveDiceRoll;
+int axisToMoveTicks = 0;
+int runningTicks = 0;
+
 axisToMoveEnum axisToMove;
 
 uint32_t stopTime;
@@ -108,136 +69,150 @@ Servo yAxis;
 
 void setup() {
   Serial.begin(9600);
-
-  display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);    //Start display
-  delay(50);                                              //Delay to make sure display is ready
-  display.setTextColor(SSD1306_WHITE);                    //Set text color
-  display.setRotation(2);                                         
-
-  ShowOnDisplay("Running...");
-
+  
   pinMode(BUTTON_LEFT, INPUT_PULLUP);
   pinMode(BUTTON_RIGHT, INPUT_PULLUP);
   pinMode(BUTTON_ENTER, INPUT_PULLUP);
   pinMode(BUTTON_ESCAPE, INPUT_PULLUP);
 
   pinMode(LASER_PIN, OUTPUT);
-  pinMode(BUTTON_PIN, INPUT);
+  digitalWrite(LASER_PIN, LOW);
 
-  ButtonLeft.attachClick(ShowLeftOnDisplay);
-  ButtonRight.attachClick(ShowRightOnDisplay);
-  ButtonEnter.attachClick(ShowEnterOnDisplay);
-  ButtonEscape.attachClick(ShowEscapeOnDisplay);
+  ButtonLeft.attachClick([] { menuNavAction = MD_Menu::NAV_DEC; });
+  ButtonRight.attachClick([] { menuNavAction = MD_Menu::NAV_INC; });
+  ButtonEnter.attachClick([] { menuNavAction = MD_Menu::NAV_SEL; });
+  ButtonEscape.attachClick([] { menuNavAction = MD_Menu::NAV_ESC; });
+
+  displayMenu(MD_Menu::DISP_INIT);
+  MainMenu.begin();
+  MainMenu.setMenuWrap(true);
 
   stopTime = millis();
-  isRunning = true;
 }
 
 void loop() {
-  int axisToMoveDiceRoll;
-  int axisToMoveTicks = 0;
-  int runningTicks = 0;
-  
   ButtonLeft.tick();
   ButtonRight.tick();
   ButtonEnter.tick();
   ButtonEscape.tick();
 
-  if(Serial.available()){
-    display.clearDisplay();
-    display.setCursor(0 , 0);
-    display.setTextSize(1);
-    String input = Serial.readStringUntil('\n');
+  bool formerRunState = isRunning;
 
-    display.println(input);
+  if(formerRunState != checkRunConditions())
+  {
+    Serial.println(F("Run condition changed"));
 
-    display.display();
-  }
-
-  /*
-  while (digitalRead(BUTTON_PIN) == HIGH) {
-    isRunning = true;
-    digitalWrite(LASER_PIN, HIGH);
-  }
-
-  if (millis() - stopTime > SLEEPTIME) {
-    isRunning = true;
-  }
-
-  if (isRunning) {
-    xAxis.attach(X_SERVO_PIN);
-    yAxis.attach(Y_SERVO_PIN);
-    digitalWrite(LASER_PIN, HIGH);
-    
-    startTime = millis();
-  }
-
-  while (isRunning) {
-    if (runningTicks > axisToMoveTicks) {
-      runningTicks = 0;
-      axisToMoveDiceRoll = random(0, 1000); 
-    
-      if (axisToMoveDiceRoll < 600)   
-        axisToMove = xAndY;
-      else if (axisToMoveDiceRoll < 750) 
-        axisToMove = xOnly;
-      else if (axisToMoveDiceRoll < 900)
-        axisToMove = yOnly;
-      else
-        axisToMove = none;
-        
-      axisToMoveTicks = random(MIN_AXIS_MOVE_DECISSION_TICKS, MAX_AXIS_MOVE_DECISSION_TICKS);
+    if (isRunning) {
+      startRun();
     }
-    else
-      runningTicks++;
+    else {
+      stopRun();
+    }
+  }
 
-    randomMoves();    
+  if(isRunning) {
+    laserLoop();
+  }
+
+  // Check menu conditions only at the end so that we can use 
+  // menuNavAction for starting and stopping manually
+  if (!MainMenu.isInMenu())
+  {
+    if (navigateMenu() == MD_Menu::NAV_SEL)
+      MainMenu.runMenu(true);
+  }
+
+  MainMenu.runMenu();   // Must run in loop in order to work
+}
+
+  bool checkRunConditions() {
+
+  // Start if button pressed
+  if (!isRunning && !MainMenu.isInMenu() && menuNavAction == MD_Menu::NAV_ESC) {
+    Serial.println(F("Button Pressed - starting"));
+    menuNavAction = MD_Menu::NAV_NULL;
+    isRunning = true;
+  }
+
+  // Stop if button pressed
+  if (isRunning && !MainMenu.isInMenu() && menuNavAction == MD_Menu::NAV_ESC) {
+    Serial.println(F("Button Pressed - stopping"));
+    menuNavAction = MD_Menu::NAV_NULL;
+    isRunning = false;
+  }
+
+  // Stop if time is over
+  if (!(millis() - startTime < RUNTIME) && isRunning) {
+    Serial.println(F("Time is up - stopping"));
+    isRunning = false;
+  }
+
+  // Start if sleep time is over
+  if (millis() - stopTime > SLEEPTIME && !isRunning) {
+      Serial.println(F("Sleep is over - starting"));
+    isRunning = true;
+  }
+
+  return isRunning;
+}
+
+void laserLoop() {
+  if (runningTicks > axisToMoveTicks) {
+    runningTicks = 0;
+    axisToMoveDiceRoll = random(0, 1000); 
   
-    randomDelay = random(MIN_DELAY, MAX_DELAY);
-    sleep(randomDelay);
-
-    // Stop if button pressed
-    while (digitalRead(BUTTON_PIN) == HIGH) {
-      isRunning = false;
-      stopTime = millis();
-    }
-
-    // Stop if time is over
-    if (!(millis() - startTime < RUNTIME)) {
-      isRunning = false; 
-      stopTime = millis();
-    }
+    if (axisToMoveDiceRoll < 600)   
+      axisToMove = xAndY;
+    else if (axisToMoveDiceRoll < 750) 
+      axisToMove = xOnly;
+    else if (axisToMoveDiceRoll < 900)
+      axisToMove = yOnly;
+    else
+      axisToMove = none;
+      
+    axisToMoveTicks = random(MIN_AXIS_MOVE_DECISSION_TICKS, MAX_AXIS_MOVE_DECISSION_TICKS);
   }
-    
+  else
+    runningTicks++;
+
+  randomMoves();    
+
+  randomDelay = random(MIN_DELAY, MAX_DELAY);
+  sleep(randomDelay);
+}
+
+void startRun() {
+  digitalWrite(LASER_PIN, HIGH);
+  xAxis.attach(X_SERVO_PIN);
+  yAxis.attach(Y_SERVO_PIN);
+  startTime = millis();
+}
+
+void stopRun() {
   digitalWrite(LASER_PIN, LOW);
   xAxis.detach();
   yAxis.detach();
-  //delay(SLEEPTIME);
-  
-  delay(100);
-  */
+  stopTime = millis();
 }
 
-void sleep (uint32_t sleepMs) {
+void sleep(uint32_t sleepMs) {
   uint32_t startMs = millis();
-  while ((millis() - startMs) < sleepMs)
-  {
+  while ((millis() - startMs) < sleepMs) {
     delay(10);
   }
 }
 
-void randomMoves () {
+void randomMoves() {
   if (axisToMove == xAndY) {
     moveAxis(xInterval, xPos, xTurnaround, X_MIN, X_MAX);
-    moveAxis(yInterval, yPos, yTurnaround, Y_MIN, Y_MAX); 
-  }
-  else if (axisToMove == xOnly) 
+    moveAxis(yInterval, yPos, yTurnaround, Y_MIN, Y_MAX);
+  } else if (axisToMove == xOnly)
     moveAxis(xInterval, xPos, xTurnaround, X_MIN, X_MAX);
   else if (axisToMove == yOnly)
     moveAxis(yInterval, yPos, yTurnaround, Y_MIN, Y_MAX);
 
   triggerLaser();
-  
+
   xAxis.write(xPos);
   yAxis.write(yPos);
 }
@@ -249,71 +224,38 @@ void moveAxis(int& interval, int& pos, int& tunraround, int axisMin, int axisMax
   if (interval == 1) {
     if (pos < tunraround) {
       pos++;
-    }
-    else {
+    } else {
       interval = -1;
       tunraround = random(axisMin, yPos - MIN_DISTANCE);
     }
-  }
-  else {
+  } else {
     if (pos > tunraround) {
       pos--;
-    }
-    else {
+    } else {
       interval = 1;
       tunraround = random(pos + MIN_DISTANCE, axisMax);
     }
   }
 }
 
-void triggerLaser() {  
+void triggerLaser() {
   if (laserOffTicks == 0) {
-    if (random(1, 1250) == 1) { 
+    if (random(1, 1250) == 1) {
       digitalWrite(LASER_PIN, LOW);
       laserOffDuration = random(MIN_LASER_OFF_TICKS, MAX_LASER_OFF_TICKS);
       laserOffTicks = 1;
     }
-  }
-  else {
+  } else {
     if (laserOffTicks <= laserOffDuration)
       laserOffTicks++;
     else {
       laserOffTicks = 0;
-      digitalWrite(LASER_PIN, HIGH);  
+      digitalWrite(LASER_PIN, HIGH);
     }
   }
 }
 
-
-
-void ShowOnDisplay(String text) {
-  display.clearDisplay();
-  display.setTextSize(2);
-  display.setCursor(0, 0);
-  display.print(text);
-  display.display();
-}
-
-void ShowLeftOnDisplay() {
-  ShowOnDisplay("Left"); 
-}
-
-void ShowRightOnDisplay() {
-  ShowOnDisplay("Right");
-}
-
-void ShowEnterOnDisplay() {ShowOnDisplay("Enter");}
-void ShowEscapeOnDisplay() {ShowOnDisplay("Escape");}
-
-
-
-
-
-
-
-
-
-void moveWithSimulatedShaking (int APos, int AHorizontalDirection) {
+void moveWithSimulatedShaking(int APos, int AHorizontalDirection) {
   yAxis.write(APos);
 
   if (APos % 10 == 0) randomDelay = random(10, 50);
@@ -328,22 +270,13 @@ void sweep(int AFrom, int ATo, int AHorizontalDirection, bool ABack) {
   if (!ABack) {
     for (int LPos = AFrom; LPos <= ATo; LPos++)
       moveWithSimulatedShaking(LPos, AHorizontalDirection);
-  }
-  else {
+  } else {
     for (int LPos = AFrom; LPos >= ATo; LPos--)
       moveWithSimulatedShaking(LPos, AHorizontalDirection);
   }
 }
 
-// Vom Flur ins Schlafzimmer, dann Richtung Küche und wieder von vorne
-void laufen() {
-  sweep(75, 120, 80, false);
-  sweep(120, 75, 80, true);
-  sweep(75, 40, 110, true);
-  sweep(40, 75, 110, false);
-}
-
-void kreis() {
+void circle() {
   double winkel = 2 * PI / 90;
   int x, y;
   int radius = 10;
