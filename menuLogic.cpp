@@ -5,7 +5,7 @@ MD_Menu::value_t menuValueBuffer;
 MD_Menu::value_t *menuSetMinimumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType){
   switch(reqType) {
     case MD_Menu::REQ_GET:
-      isRunning = false;
+      stopLaser();
       menuValueBuffer.value = X_MIN;
       xAxis.write(X_MIN);
       xAxis.attach(X_SERVO_PIN);
@@ -31,7 +31,7 @@ MD_Menu::value_t *menuSetMinimumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
 MD_Menu::value_t *menuSetMaximumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
   switch(reqType) {
     case MD_Menu::REQ_GET:
-      isRunning = false;
+      stopLaser();
       menuValueBuffer.value = X_MAX;
       xAxis.write(X_MAX);
       xAxis.attach(X_SERVO_PIN);
@@ -57,7 +57,7 @@ MD_Menu::value_t *menuSetMaximumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
 MD_Menu::value_t *menuSetMinimumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
   switch(reqType) {
     case MD_Menu::REQ_GET:
-      isRunning = false;
+      stopLaser();
       menuValueBuffer.value = Y_MIN;
       yAxis.write(Y_MIN);
       yAxis.attach(Y_SERVO_PIN);
@@ -83,7 +83,7 @@ MD_Menu::value_t *menuSetMinimumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
 MD_Menu::value_t *menuSetMaximumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType){
     switch(reqType) {
     case MD_Menu::REQ_GET:
-      isRunning = false;
+      stopLaser();
       menuValueBuffer.value = Y_MAX;
       yAxis.write(Y_MAX);
       yAxis.attach(Y_SERVO_PIN);

@@ -6,6 +6,7 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <AsyncTimer.h>
 
 #include "menu.h"
 
@@ -31,4 +32,21 @@ extern byte X_MAX;
 extern byte Y_MIN;
 extern byte Y_MAX;
 
-extern bool isRunning;
+enum movementTypeEnum { 
+  mtNone, 
+  mtDiagonal,
+  mtHorizontal,
+  mtVertical,
+  mtCircle
+};
+
+void startLaser();
+void stopLaser();
+void laufen();
+void sweep(int AFrom, int ATo, int AHorizontalDirection, bool ABack);
+void moveWithSimulatedShaking(int AFrom, int ATo, int AHorizontalDirection);
+void sleep();
+void randomMoves();
+void moveAxis(int& interval, int& pos, int& tunraround, int axisMin, int axisMax);
+void triggerLaser();
+void laserMove();

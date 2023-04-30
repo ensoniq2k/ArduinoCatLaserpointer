@@ -42,3 +42,10 @@ MD_Menu MainMenu(navigateMenu, displayMenu,        // user navigation and displa
           menuHeader, ARRAY_SIZE(menuHeader), // menu header data
           menuItems, ARRAY_SIZE(menuItems), // menu item data
           menuInputs, ARRAY_SIZE(menuInputs));// menu input data
+
+void initMenu() {
+  displayMenu(MD_Menu::DISP_INIT);
+  MainMenu.begin();
+  MainMenu.setTimeout(MENU_TIMEOUT);
+  MainMenu.setMenuWrap(true);
+}
