@@ -16,9 +16,13 @@ MD_Menu::value_t *menuSetMinimumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
       xAxis.detach();
       break;    
     
-    case MD_Menu::REQ_FB:
+    case MD_Menu::REQ_UPD:
       xAxis.write(menuValueBuffer.value);
-      break;   
+      break;  
+
+    case MD_Menu::REQ_ESC:
+      xAxis.detach();
+      break;    
   }
 
   return &menuValueBuffer;
@@ -38,8 +42,12 @@ MD_Menu::value_t *menuSetMaximumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
       xAxis.detach();
       break;    
     
-    case MD_Menu::REQ_FB:
+    case MD_Menu::REQ_UPD:
       xAxis.write(menuValueBuffer.value);
+      break;
+
+    case MD_Menu::REQ_ESC:
+      xAxis.detach();
       break;   
   }
 
@@ -60,9 +68,13 @@ MD_Menu::value_t *menuSetMinimumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
       yAxis.detach();
       break;    
     
-    case MD_Menu::REQ_FB:
+    case MD_Menu::REQ_UPD:
       yAxis.write(menuValueBuffer.value);
       break;   
+
+    case MD_Menu::REQ_ESC:
+      yAxis.detach();
+      break;
   }
 
   return &menuValueBuffer;
@@ -82,9 +94,13 @@ MD_Menu::value_t *menuSetMaximumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
       yAxis.detach();
       break;    
     
-    case MD_Menu::REQ_FB:
+    case MD_Menu::REQ_UPD:
       yAxis.write(menuValueBuffer.value);
-      break;   
+      break;  
+      
+    case MD_Menu::REQ_ESC:
+      yAxis.detach();
+      break;
   }
 
   return &menuValueBuffer;
