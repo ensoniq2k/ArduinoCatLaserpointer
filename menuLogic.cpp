@@ -2,18 +2,43 @@
 
 MD_Menu::value_t menuValueBuffer;
 
+MD_Menu::value_t *menuSetFont(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType){
+    switch(reqType) {
+    case MD_Menu::REQ_GET:
+      menuValueBuffer.value = static_cast<int32_t>(currentFont);
+      break;
+
+    case MD_Menu::REQ_SET:
+      currentFont = static_cast<Fonts>(menuValueBuffer.value);    
+      displaySetFont(currentFont);
+      break;    
+    
+    case MD_Menu::REQ_UPD:
+      displaySetFont(static_cast<Fonts>(menuValueBuffer.value));
+      displayShowCurrentText();
+      break;  
+      
+    case MD_Menu::REQ_ESC:
+      displaySetFont(currentFont);
+      break;
+  }
+
+  return &menuValueBuffer;
+}
+
 MD_Menu::value_t *menuSetMinimumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType){
   switch(reqType) {
     case MD_Menu::REQ_GET:
-      stopLaser();
+      endRun();
       menuValueBuffer.value = X_MIN;
+      startLaser();
       xAxis.write(X_MIN);
-      xAxis.attach(X_SERVO_PIN);
+      yAxis.write(min(max(Y_MIN, 90), Y_MAX)); // Ideally we want 90 as value but if any limit prevents this we take that value
       break;
 
     case MD_Menu::REQ_SET:
       X_MIN = menuValueBuffer.value;    
-      xAxis.detach();
+      stopLaser();
       break;    
     
     case MD_Menu::REQ_UPD:
@@ -21,7 +46,7 @@ MD_Menu::value_t *menuSetMinimumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
       break;  
 
     case MD_Menu::REQ_ESC:
-      xAxis.detach();
+      stopLaser();
       break;    
   }
 
@@ -31,15 +56,16 @@ MD_Menu::value_t *menuSetMinimumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
 MD_Menu::value_t *menuSetMaximumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
   switch(reqType) {
     case MD_Menu::REQ_GET:
-      stopLaser();
+      endRun();
       menuValueBuffer.value = X_MAX;
+      startLaser();
       xAxis.write(X_MAX);
-      xAxis.attach(X_SERVO_PIN);
+      yAxis.write(min(max(Y_MIN, 90), Y_MAX)); // Ideally we want 90 as value but if any limit prevents this we take that value
       break;
 
     case MD_Menu::REQ_SET:
       X_MAX = menuValueBuffer.value;    
-      xAxis.detach();
+      stopLaser();
       break;    
     
     case MD_Menu::REQ_UPD:
@@ -47,7 +73,7 @@ MD_Menu::value_t *menuSetMaximumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
       break;
 
     case MD_Menu::REQ_ESC:
-      xAxis.detach();
+      stopLaser();
       break;   
   }
 
@@ -57,15 +83,16 @@ MD_Menu::value_t *menuSetMaximumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
 MD_Menu::value_t *menuSetMinimumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
   switch(reqType) {
     case MD_Menu::REQ_GET:
-      stopLaser();
+      endRun();
       menuValueBuffer.value = Y_MIN;
+      startLaser();
+      xAxis.write(min(max(Y_MIN, 90), Y_MAX)); // Ideally we want 90 as value but if any limit prevents this we take that value
       yAxis.write(Y_MIN);
-      yAxis.attach(Y_SERVO_PIN);
       break;
 
     case MD_Menu::REQ_SET:
       Y_MIN = menuValueBuffer.value;    
-      yAxis.detach();
+      stopLaser();
       break;    
     
     case MD_Menu::REQ_UPD:
@@ -73,7 +100,7 @@ MD_Menu::value_t *menuSetMinimumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
       break;   
 
     case MD_Menu::REQ_ESC:
-      yAxis.detach();
+      stopLaser();
       break;
   }
 
@@ -83,15 +110,16 @@ MD_Menu::value_t *menuSetMinimumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
 MD_Menu::value_t *menuSetMaximumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType){
     switch(reqType) {
     case MD_Menu::REQ_GET:
-      stopLaser();
+      endRun();
       menuValueBuffer.value = Y_MAX;
+      startLaser();
+      xAxis.write(min(max(Y_MIN, 90), Y_MAX)); // Ideally we want 90 as value but if any limit prevents this we take that value
       yAxis.write(Y_MAX);
-      yAxis.attach(Y_SERVO_PIN);
       break;
 
     case MD_Menu::REQ_SET:
       Y_MAX = menuValueBuffer.value;    
-      yAxis.detach();
+      stopLaser();
       break;    
     
     case MD_Menu::REQ_UPD:
@@ -99,11 +127,24 @@ MD_Menu::value_t *menuSetMaximumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
       break;  
       
     case MD_Menu::REQ_ESC:
-      yAxis.detach();
+      stopLaser();
       break;
   }
 
   return &menuValueBuffer;
+}
+
+MD_Menu::value_t *menuSaveConfig(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType){
+  switch(reqType) {
+    case MD_Menu::REQ_GET:
+      return nullptr; // nullptr means no confirmation required
+      break;
+
+    case MD_Menu::REQ_SET:
+      writeSettingsToEeprom();
+      displayToast(F("Saved!"), 1000, true);
+      break;    
+  }
 }
 
 MD_Menu::userNavAction_t navigateMenu()

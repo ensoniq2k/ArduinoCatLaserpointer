@@ -7,46 +7,43 @@ OneButton ButtonRight = OneButton(BUTTON_RIGHT, true, true);
 OneButton ButtonEnter = OneButton(BUTTON_ENTER, true, true);
 OneButton ButtonEscape = OneButton(BUTTON_ESCAPE, true, true);
 
-byte X_MIN = 35;
-byte X_MAX = 130;
-byte Y_MIN = 90;
-byte Y_MAX = 135;
+uint8_t X_MIN = 35;
+uint8_t X_MAX = 130;
+uint8_t Y_MIN = 90;
+uint8_t Y_MAX = 135;
 #define MIN_DISTANCE 15
 
 // Minimum and maximum wait time in milliseconds between each servo movement step
-const int MIN_DELAY = 20;  
-const int MAX_DELAY = 50;
+const unsigned short MIN_DELAY = 20;  
+const unsigned short MAX_DELAY = 50;
 
 const uint32_t RUNTIME = 180000;      // Time for each "round" until device goes to sleep
 const uint32_t SLEEPTIME = 10800000;  // Time for how long the device sleeps until it reactivates itself
 
 // Minimum and maximum time the laser can be turned off to confuse the cat
-const int MIN_LASER_OFF_TICKS = 5;    
-const int MAX_LASER_OFF_TICKS = 100;
+const uint8_t MIN_LASER_OFF_TICKS = 5;    
+const uint8_t MAX_LASER_OFF_TICKS = 50;
 
 // 
-const int MIN_AXIS_MOVE_DECISSION_TICKS = 20;
-const int MAX_AXIS_MOVE_DECISSION_TICKS = 100;
+const uint8_t MIN_AXIS_MOVE_DECISSION_TICKS = 20;
+const uint8_t MAX_AXIS_MOVE_DECISSION_TICKS = 100;
 
-int xInterval = 1;
-int yInterval = 1;
+short xInterval = 1;
+short yInterval = 1;
 
-int xTurnaround = X_MAX;
-int yTurnaround = Y_MAX;
+uint8_t xTurnaround = X_MAX;
+uint8_t yTurnaround = Y_MAX;
 
-int xPos = 90;
-int yPos = 90;
-int circleStartAngle = 0;
+uint8_t xPos = 90;
+uint8_t yPos = 90;
 
-int laserOffDuration = 0;
-int laserOffTicks = 0;
+uint8_t laserOffDuration = 0;
+uint8_t laserOffTicks = 0;
 
-int movementTypeTicks = 0;
-int runningTicks = 0;
+uint8_t  movementTypeTicks = 0;
+uint8_t  runningTicks = 0;
 
 movementTypeEnum movementType;
-
-bool isRunning = false;
 
 Servo xAxis;
 Servo yAxis;
@@ -56,9 +53,9 @@ AsyncTimer timer;
 unsigned short laserMoveTimerId = 0;
 unsigned short laserWakeUpTimerId = 0;
 unsigned short laserRuntimeUpTimerId = 0;
-auto laserWakeUpLambda = [] { startLaser(); };
-auto laserRuntimeUpLambda = [] { stopLaser(); laserRuntimeUpTimerId = 0; };
-auto laserMoveLambda = [] { laserMove(); };
+auto laserWakeUpLambda = [] { startRun(); };
+auto laserRuntimeUpLambda = [] { endRun(); laserRuntimeUpTimerId = 0; };
+auto laserMoveLambda = [] { if(!mainMenu.isInMenu()) laserMove(); };
 
 void setup() {
   Serial.begin(9600);
@@ -76,6 +73,7 @@ void setup() {
   ButtonEnter.attachClick([] { menuNavAction = MD_Menu::NAV_SEL; });
   ButtonEscape.attachClick([] { menuNavAction = MD_Menu::NAV_ESC; });
 
+  restoreSettingsFromEeprom();
   initMenu();
 
   laserWakeUpTimerId = timer.setInterval(laserWakeUpLambda, SLEEPTIME);
@@ -94,29 +92,27 @@ void loop() {
 
   // Check menu conditions only at the end so that we can use 
   // menuNavAction for starting and stopping manually
-  if (!MainMenu.isInMenu())
+  if (!mainMenu.isInMenu())
   {
     if (navigateMenu() == MD_Menu::NAV_SEL)
-      MainMenu.runMenu(true);
+      mainMenu.runMenu(true);
   }
 
-  MainMenu.runMenu();   // Must run in loop in order to work
+  mainMenu.runMenu();   // Must run in loop in order to work
 }
 
 void checkUserInput() {
 
   // Start if button pressed
-  if (menuNavAction == MD_Menu::NAV_ESC && laserMoveTimerId == 0 && !MainMenu.isInMenu()) {
-    Serial.println(F("Button Pressed - starting"));
+  if (menuNavAction == MD_Menu::NAV_ESC && laserMoveTimerId == 0 && !mainMenu.isInMenu()) {
     menuNavAction = MD_Menu::NAV_NULL;
-    startLaser();
+    startRun();
   }
 
   // Stop if button pressed
-  if (menuNavAction == MD_Menu::NAV_ESC && laserMoveTimerId > 0 && !MainMenu.isInMenu()) {
-    Serial.println(F("Button Pressed - stopping"));
+  if (menuNavAction == MD_Menu::NAV_ESC && laserMoveTimerId > 0 && !mainMenu.isInMenu()) {
     menuNavAction = MD_Menu::NAV_NULL;
-    stopLaser();
+    endRun();
   }
 }
 
@@ -134,24 +130,29 @@ void laserMove() {
   laserMoveTimerId = timer.setTimeout(laserMoveLambda, randomDelay);
 }
 
-void startLaser() {
-  Serial.println(F("Starting Laser"));
+void startRun() {
   timer.reset(laserWakeUpTimerId);
 
-  digitalWrite(LASER_PIN, HIGH);
-  xAxis.attach(X_SERVO_PIN);
-  yAxis.attach(Y_SERVO_PIN);
+  startLaser();
   
   laserMove();
   laserRuntimeUpTimerId = timer.setTimeout(laserRuntimeUpLambda, RUNTIME);
 }
 
-void stopLaser() {
-  Serial.println(F("Stopping Laser"));
-
+void endRun() {
   timer.cancel(laserMoveTimerId);
   laserMoveTimerId = 0;
 
+  stopLaser();
+}
+
+void startLaser() {
+  digitalWrite(LASER_PIN, HIGH);
+  xAxis.attach(X_SERVO_PIN);
+  yAxis.attach(Y_SERVO_PIN);
+}
+
+void stopLaser() {
   digitalWrite(LASER_PIN, LOW);
   xAxis.detach();
   yAxis.detach();
@@ -167,10 +168,6 @@ void randomMoves() {
   }
   else if (movementType == mtVertical) {
     moveAxis(yInterval, yPos, yTurnaround, Y_MIN, Y_MAX);
-  }
-  else if ((movementType == mtCircle)) {
-    //moveInEllipse(xPos, yPos);
-    //chooseNewRandomMovementPattern();
   }
 
   triggerLaser();
@@ -192,23 +189,12 @@ void chooseNewRandomMovementPattern() {
     else
       movementType = mtNone;
 
-    // if (movementTypeDiceRoll < 500)   
-    //   movementType = mtDiagonal;
-    // else if (movementTypeDiceRoll < 650) 
-    //   movementType = mtHorizontal;
-    // else if (movementTypeDiceRoll < 800)
-    //   movementType = mtVertical;
-    // else if (movementTypeDiceRoll < 900)
-    //   movementType = mtCircle;
-    // else
-    //   movementType = mtNone;
-
     // How long the distance of ticks the movement should last
     movementTypeTicks = random(MIN_AXIS_MOVE_DECISSION_TICKS, MAX_AXIS_MOVE_DECISSION_TICKS);
 }
 
 // Moves the laser in straight lines
-void moveAxis(int& interval, int& pos, int& tunraround, int axisMin, int axisMax) {
+void moveAxis(short& interval, uint8_t& pos, uint8_t& tunraround, uint8_t axisMin, uint8_t axisMax) {
   if (interval == 1) {
     if (pos < tunraround) {
       pos++;
@@ -262,63 +248,38 @@ void triggerLaser() {
   }
 }
 
+void writeSettingsToEeprom() {
+  EEPROM.begin();
 
+    EEPROM.update(ADRESS_X_MIN, X_MIN);
+    EEPROM.update(ADRESS_X_MAX, X_MAX);
+    EEPROM.update(ADRESS_Y_MIN, Y_MIN);
+    EEPROM.update(ADRESS_Y_MAX, Y_MAX);
+    EEPROM.update(ADRESS_FONT_TYPE, static_cast<uint8_t>(currentFont));
 
-/* Attempt in letting the laser to a elipse around the center from the current point
-void moveInEllipse(unsigned short startX, unsigned short startY) {
-  Serial.println("Starting Ellipse at");
-  Serial.print("X: ");
-  Serial.print(startX);
-  Serial.print(" Y: ");
-  Serial.println(startY);
-
-  // calculate center of the ellipse
-  unsigned short centerX = (X_MAX - X_MIN) / 2 + X_MIN;
-  unsigned short centerY = (Y_MAX - Y_MIN) / 2 + Y_MIN;
-
-  Serial.print("Center X: ");
-  Serial.println(centerX);
-  Serial.print("Center Y: ");
-  Serial.println(centerY);
-
-  // calculate maximum radius based on X/Y bounds
-  unsigned short maxRadiusX = startX > centerX ? (centerX - startX) *-1 : centerX - startX;
-  unsigned short maxRadiusY = startY > centerY ? (centerY - startY) *-1 : centerY - startY;
-
-  Serial.print("Max Radius X: ");
-  Serial.println(maxRadiusX);
-  Serial.print("Max Radius Y: ");
-  Serial.println(maxRadiusY);
-
-  double startAngle = atan2(startY - centerY, startX - centerX);
-  if (startAngle < 0) {
-    startAngle += 2 * PI;
-  }
-  
-  double angle = 2 * PI / 90;
-  unsigned short x, y;
-
-  for (int i = 0; i <= 90; i++) {
-    // calculate radius based on current angle
-    unsigned short radiusX = (unsigned short) (maxRadiusX * abs(cos(i * angle)));
-    unsigned short radiusY = (unsigned short) (maxRadiusY * abs(sin(i * angle)));
-
-    Serial.print("Radius X: ");
-    Serial.println(radiusX);
-    Serial.print("Radius Y: ");
-    Serial.println(radiusY);
-
-    double currentAngle = startAngle + i * angle;
-    x = centerX + cos(currentAngle) * radiusX;
-    y = centerY + sin(currentAngle) * radiusY;
-
-    xAxis.write(x);
-    yAxis.write(y);
-    Serial.print("X: ");
-    Serial.print(x);
-    Serial.print(" Y: ");
-    Serial.println(y);
-    delay(25);
-  }
+  EEPROM.end();
 }
-*/
+
+
+void restoreSettingsFromEeprom() {
+  // If a value is not yet stored they're max value so we ignore it
+  EEPROM.begin();
+  uint8_t readByte;
+
+  readByte = EEPROM.read(ADRESS_X_MIN);
+  if(readByte != 255) X_MIN = readByte;
+
+  readByte = EEPROM.read(ADRESS_X_MAX);
+  if(readByte != 255) X_MAX = readByte;
+
+  readByte = EEPROM.read(ADRESS_Y_MIN);
+  if(readByte != 255) Y_MIN = readByte;
+
+  readByte = EEPROM.read(ADRESS_Y_MAX);
+  if(readByte != 255) Y_MAX = readByte;
+
+  readByte = EEPROM.read(ADRESS_FONT_TYPE);
+  if(readByte != 255) currentFont = static_cast<Fonts>(readByte);
+
+  EEPROM.end();
+}

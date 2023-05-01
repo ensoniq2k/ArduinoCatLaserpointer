@@ -3,8 +3,10 @@
 #include "Servo.h"
 #include "OneButton.h"
 #include <AsyncTimer.h>
+#include <EEPROM.h>
 
 #include "menu.h"
+#include "eepromStore.h"
 
 #define BUTTON_LEFT 7
 #define BUTTON_RIGHT 8
@@ -23,10 +25,10 @@ extern OneButton ButtonEscape;
 extern Servo xAxis;
 extern Servo yAxis;
 
-extern byte X_MIN;
-extern byte X_MAX;
-extern byte Y_MIN;
-extern byte Y_MAX;
+extern uint8_t X_MIN;
+extern uint8_t X_MAX;
+extern uint8_t Y_MIN;
+extern uint8_t Y_MAX;
 
 enum movementTypeEnum { 
   mtNone, 
@@ -38,6 +40,8 @@ enum movementTypeEnum {
 
 void startLaser();
 void stopLaser();
+void startRun();
+void endRun();
 void laufen();
 void sweep(int AFrom, int ATo, int AHorizontalDirection, bool ABack);
 void moveWithSimulatedShaking(int AFrom, int ATo, int AHorizontalDirection);
@@ -46,3 +50,4 @@ void randomMoves();
 void moveAxis(int& interval, int& pos, int& tunraround, int axisMin, int axisMax);
 void triggerLaser();
 void laserMove();
+void writeSettingsToEeprom();
