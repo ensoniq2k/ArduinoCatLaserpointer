@@ -33,7 +33,7 @@ MD_Menu::value_t *menuSetMinimumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
       menuValueBuffer.value = X_MIN;
       startLaser();
       xAxis.write(X_MIN);
-      yAxis.write(min(max(Y_MIN, 90), Y_MAX)); // Ideally we want 90 as value but if any limit prevents this we take that value
+      yAxis.write(MIDPOINT(Y_MIN, Y_MAX));
       break;
 
     case MD_Menu::REQ_SET:
@@ -60,7 +60,7 @@ MD_Menu::value_t *menuSetMaximumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
       menuValueBuffer.value = X_MAX;
       startLaser();
       xAxis.write(X_MAX);
-      yAxis.write(min(max(Y_MIN, 90), Y_MAX)); // Ideally we want 90 as value but if any limit prevents this we take that value
+      yAxis.write(MIDPOINT(Y_MIN, Y_MAX));
       break;
 
     case MD_Menu::REQ_SET:
@@ -86,7 +86,7 @@ MD_Menu::value_t *menuSetMinimumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
       endRun();
       menuValueBuffer.value = Y_MIN;
       startLaser();
-      xAxis.write(min(max(Y_MIN, 90), Y_MAX)); // Ideally we want 90 as value but if any limit prevents this we take that value
+      xAxis.write(MIDPOINT(X_MIN, X_MAX));
       yAxis.write(Y_MIN);
       break;
 
@@ -113,7 +113,7 @@ MD_Menu::value_t *menuSetMaximumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
       endRun();
       menuValueBuffer.value = Y_MAX;
       startLaser();
-      xAxis.write(min(max(Y_MIN, 90), Y_MAX)); // Ideally we want 90 as value but if any limit prevents this we take that value
+      xAxis.write(MIDPOINT(X_MIN, X_MAX));
       yAxis.write(Y_MAX);
       break;
 

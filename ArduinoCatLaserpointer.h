@@ -17,6 +17,8 @@
 #define Y_SERVO_PIN 6
 #define LASER_PIN 4
 
+#define MIDPOINT(min, max) (min + max) / 2
+
 extern OneButton ButtonLeft;
 extern OneButton ButtonRight;
 extern OneButton ButtonEnter;
@@ -51,3 +53,4 @@ void moveAxis(int& interval, int& pos, int& tunraround, int axisMin, int axisMax
 void triggerLaser();
 void laserMove();
 void writeSettingsToEeprom();
+void updateDefaultValues();

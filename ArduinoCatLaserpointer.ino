@@ -7,10 +7,10 @@ OneButton ButtonRight = OneButton(BUTTON_RIGHT, true, true);
 OneButton ButtonEnter = OneButton(BUTTON_ENTER, true, true);
 OneButton ButtonEscape = OneButton(BUTTON_ESCAPE, true, true);
 
-uint8_t X_MIN = 35;
+uint8_t X_MIN = 50;
 uint8_t X_MAX = 130;
-uint8_t Y_MIN = 90;
-uint8_t Y_MAX = 135;
+uint8_t Y_MIN = 50;
+uint8_t Y_MAX = 130;
 #define MIN_DISTANCE 15
 
 // Minimum and maximum wait time in milliseconds between each servo movement step
@@ -34,8 +34,8 @@ short yInterval = 1;
 uint8_t xTurnaround = X_MAX;
 uint8_t yTurnaround = Y_MAX;
 
-uint8_t xPos = 90;
-uint8_t yPos = 90;
+uint8_t xPos = MIDPOINT(X_MIN, X_MAX);
+uint8_t yPos = MIDPOINT(Y_MIN, Y_MAX);
 
 uint8_t laserOffDuration = 0;
 uint8_t laserOffTicks = 0;
@@ -282,4 +282,15 @@ void restoreSettingsFromEeprom() {
   if(readByte != 255) currentFont = static_cast<Fonts>(readByte);
 
   EEPROM.end();
+
+  updateDefaultValues();
+}
+
+// Recalculation after reading from EEPROM
+void updateDefaultValues() {
+  xPos = MIDPOINT(X_MIN, X_MAX);
+  yPos = MIDPOINT(Y_MIN, Y_MAX);
+
+  xTurnaround = X_MAX;
+  yTurnaround = Y_MAX;
 }
