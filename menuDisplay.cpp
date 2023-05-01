@@ -8,6 +8,8 @@
 #define LINE2_X  0      // Line 2 coordinates for start of text
 #define LINE2_Y  (LINE_HEIGHT + 2)
 
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, SCREEN_RESET);
+
 bool displayMenu(MD_Menu::userDisplayAction_t action, char *msg)
 {
   bool success = true;

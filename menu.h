@@ -1,6 +1,8 @@
 #pragma once
 
 #include <MD_Menu.h>
+#include <Adafruit_SSD1306.h>
+
 #include "ArduinoCatLaserpointer.h"
 
 #define SCREEN_WIDTH 128     // OLED display width, in pixels
@@ -12,7 +14,6 @@
 #define MENU_TIMEOUT 15000 // in milliseconds
 
 
-extern Adafruit_SSD1306 display;
 extern MD_Menu::userNavAction_t menuNavAction;
 extern MD_Menu MainMenu;
 

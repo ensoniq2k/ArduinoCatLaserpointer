@@ -2,8 +2,6 @@
 
 MD_Menu::userNavAction_t menuNavAction = MD_Menu::NAV_NULL;
 
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, SCREEN_RESET);
-
 OneButton ButtonLeft = OneButton(BUTTON_LEFT, true, true);
 OneButton ButtonRight = OneButton(BUTTON_RIGHT, true, true);
 OneButton ButtonEnter = OneButton(BUTTON_ENTER, true, true);
