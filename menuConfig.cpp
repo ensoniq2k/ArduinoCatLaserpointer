@@ -4,8 +4,9 @@
 // ID, Label, First mnuItem_t ID, Last mnuItem_t ID, CurrentItem (only used for internal track keeping so set to 0)
 const PROGMEM MD_Menu::mnuHeader_t menuHeader[] =
 {
-  { 10, "Main Menu",    10, 12, 0 },
-  { 20, "X/Y Limits",   20, 23, 0 },
+  { 10, "Main Menu",      10, 13, 0 },
+  { 20, "X/Y Limits",     20, 23, 0 },
+  { 30, "Timer Settings", 30, 31, 0 },
 };
 
 // Menu Items ----------
@@ -15,15 +16,20 @@ const PROGMEM MD_Menu::mnuHeader_t menuHeader[] =
 const PROGMEM MD_Menu::mnuItem_t menuItems[] =
 {
   // Main (Root) menu
-  { 10, "X/Y Limits",     MD_Menu::MNU_MENU,  20 },
-  { 11, "Display Font",   MD_Menu::MNU_INPUT_FB,  11 },
-  { 12, "Save Settings",   MD_Menu::MNU_INPUT,  12 },
+  { 10, "X/Y Limits",               MD_Menu::MNU_MENU,        20 },
+  { 11, "Timer Settings",           MD_Menu::MNU_MENU,        30 },
+  { 12, "Display Font",             MD_Menu::MNU_INPUT_FB,    11 },
+  { 13, "Save Settings",            MD_Menu::MNU_INPUT,       12 },
   
   // X/Y Limits submenu
-  { 20, "X Minimum",    MD_Menu::MNU_INPUT_FB, 20 },
-  { 21, "X Maximum",    MD_Menu::MNU_INPUT_FB, 21 },
-  { 22, "Y Minimum",    MD_Menu::MNU_INPUT_FB, 22 },
-  { 23, "Y Maximum",    MD_Menu::MNU_INPUT_FB, 23 },
+  { 20, "X Minimum",                MD_Menu::MNU_INPUT_FB,    20 },
+  { 21, "X Maximum",                MD_Menu::MNU_INPUT_FB,    21 },
+  { 22, "Y Minimum",                MD_Menu::MNU_INPUT_FB,    22 },
+  { 23, "Y Maximum",                MD_Menu::MNU_INPUT_FB,    23 },
+
+  // Auto Timer   
+  { 30, "Run duration",             MD_Menu::MNU_INPUT,       30 },
+  { 31, "Run interval",             MD_Menu::MNU_INPUT,       31 },
 };
 
 // Input Items ---------
@@ -39,11 +45,15 @@ const PROGMEM MD_Menu::mnuInput_t menuInputs[] =
   { 11, "Font",             MD_Menu::INP_LIST,   menuSetFont,     10,   0, 0,    0, 0, 0, listFonts },
   { 12, "Save Settings",    MD_Menu::INP_RUN,    menuSaveConfig,  10,   0, 0,    0, 0, 0, nullptr },
 
-  // LED Output     
+  // X/Y Limits     
   { 20, "X Minimum",     MD_Menu::INP_INT,   menuSetMinimumX,  3,   1, 0,    180, 0, 10, nullptr },
   { 21, "X Maximum",     MD_Menu::INP_INT,   menuSetMaximumX,  3,   1, 0,    180, 0, 10, nullptr },
   { 22, "Y Minimum",     MD_Menu::INP_INT,   menuSetMinimumY,  3,   1, 0,    180, 0, 10, nullptr },
   { 23, "Y Minimum",     MD_Menu::INP_INT,   menuSetMaximumY,  3,   1, 0,    180, 0, 10, nullptr },
+
+  // Auto Timer
+  { 30, "Seconds",     MD_Menu::INP_INT,   menuSetRunDuration,  3,   1, 0,   900,   0, 10, nullptr },
+  { 31, "Minutes",     MD_Menu::INP_INT,   menuSetRunInterval,  4,   15, 0,  1440,  0, 10, nullptr },
 };
 
 MD_Menu mainMenu(navigateMenu, displayMenu,        // user navigation and display

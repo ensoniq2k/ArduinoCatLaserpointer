@@ -2,7 +2,36 @@
 
 MD_Menu::value_t menuValueBuffer;
 
-MD_Menu::value_t *menuSetFont(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType){
+
+MD_Menu::value_t *menuSetRunDuration(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
+  switch(reqType) {
+  case MD_Menu::REQ_GET:
+    menuValueBuffer.value = RUNTIME_SECONDS;
+    break;
+
+  case MD_Menu::REQ_SET:
+    RUNTIME_SECONDS = menuValueBuffer.value;    
+    break;   
+  }
+
+  return &menuValueBuffer;
+}
+
+MD_Menu::value_t *menuSetRunInterval(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
+  switch(reqType) {
+  case MD_Menu::REQ_GET:
+    menuValueBuffer.value = SLEEPTIME_MINUTES;
+    break;
+
+  case MD_Menu::REQ_SET:
+    SLEEPTIME_MINUTES = menuValueBuffer.value;    
+    break;   
+  } 
+
+  return &menuValueBuffer;
+}
+
+MD_Menu::value_t *menuSetFont(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
     switch(reqType) {
     case MD_Menu::REQ_GET:
       menuValueBuffer.value = static_cast<int32_t>(currentFont);
@@ -26,7 +55,7 @@ MD_Menu::value_t *menuSetFont(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqTyp
   return &menuValueBuffer;
 }
 
-MD_Menu::value_t *menuSetMinimumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType){
+MD_Menu::value_t *menuSetMinimumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
   switch(reqType) {
     case MD_Menu::REQ_GET:
       endRun();
@@ -107,7 +136,7 @@ MD_Menu::value_t *menuSetMinimumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
   return &menuValueBuffer;
 }
 
-MD_Menu::value_t *menuSetMaximumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType){
+MD_Menu::value_t *menuSetMaximumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
     switch(reqType) {
     case MD_Menu::REQ_GET:
       endRun();
@@ -134,7 +163,7 @@ MD_Menu::value_t *menuSetMaximumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
   return &menuValueBuffer;
 }
 
-MD_Menu::value_t *menuSaveConfig(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType){
+MD_Menu::value_t *menuSaveConfig(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
   switch(reqType) {
     case MD_Menu::REQ_GET:
       return nullptr; // nullptr means no confirmation required

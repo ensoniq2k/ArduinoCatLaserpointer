@@ -5,20 +5,11 @@
 
 #include "ArduinoCatLaserpointer.h"
 
-#define adafruit 0           /// Flexible use of Adafruit library vs. plain ASCII display
 #define SCREEN_ADDRESS 0x3C  /// See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 
-#if adafruit
-  #include <Adafruit_SSD1306.h>
+#include <SSD1306Ascii.h>
+#include <SSD1306AsciiWire.h>
 
-  #define SCREEN_WIDTH 128     // OLED display width, in pixels
-  #define SCREEN_HEIGHT 32     // OLED display height, in pixels
-  #define SCREEN_RESET -1      // Reset pin # (or -1 if sharing Arduino reset pin)
-  #define RST_STATE 1          //1-> Reset=close switch, 0->Reset=open switch
-#else
-  #include <SSD1306Ascii.h>
-  #include <SSD1306AsciiWire.h>
-#endif
 
 enum class Fonts : uint8_t {
   Adafruit5x7 = 0,
@@ -45,6 +36,8 @@ MD_Menu::value_t *menuSetMaximumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
 MD_Menu::value_t *menuSetMinimumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType);
 MD_Menu::value_t *menuSetMaximumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType);
 MD_Menu::value_t *menuSaveConfig(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType);
+MD_Menu::value_t *menuSetRunDuration(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType);
+MD_Menu::value_t *menuSetRunInterval(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType);
 
 void initMenu();
 void displaySetFont(Fonts font);

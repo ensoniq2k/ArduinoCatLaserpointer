@@ -11,14 +11,16 @@ uint8_t X_MIN = 50;
 uint8_t X_MAX = 130;
 uint8_t Y_MIN = 50;
 uint8_t Y_MAX = 130;
+
+uint16_t RUNTIME_SECONDS = 180;
+uint16_t SLEEPTIME_MINUTES = 180;
+
 #define MIN_DISTANCE 15
 
 // Minimum and maximum wait time in milliseconds between each servo movement step
 const unsigned short MIN_DELAY = 20;  
 const unsigned short MAX_DELAY = 50;
 
-const uint32_t RUNTIME = 180000;      // Time for each "round" until device goes to sleep
-const uint32_t SLEEPTIME = 10800000;  // Time for how long the device sleeps until it reactivates itself
 
 // Minimum and maximum time the laser can be turned off to confuse the cat
 const uint8_t MIN_LASER_OFF_TICKS = 5;    
@@ -76,7 +78,7 @@ void setup() {
   restoreSettingsFromEeprom();
   initMenu();
 
-  laserWakeUpTimerId = timer.setInterval(laserWakeUpLambda, SLEEPTIME);
+  laserWakeUpTimerId = timer.setInterval(laserWakeUpLambda, MINUTES_TO_MILLIS(SLEEPTIME_MINUTES));
 }
 
 void loop() {
@@ -136,7 +138,7 @@ void startRun() {
   startLaser();
   
   laserMove();
-  laserRuntimeUpTimerId = timer.setTimeout(laserRuntimeUpLambda, RUNTIME);
+  laserRuntimeUpTimerId = timer.setTimeout(laserRuntimeUpLambda, SECONDS_TO_MILLIS(RUNTIME_SECONDS));
 }
 
 void endRun() {
@@ -251,11 +253,13 @@ void triggerLaser() {
 void writeSettingsToEeprom() {
   EEPROM.begin();
 
-    EEPROM.update(ADRESS_X_MIN, X_MIN);
-    EEPROM.update(ADRESS_X_MAX, X_MAX);
-    EEPROM.update(ADRESS_Y_MIN, Y_MIN);
-    EEPROM.update(ADRESS_Y_MAX, Y_MAX);
-    EEPROM.update(ADRESS_FONT_TYPE, static_cast<uint8_t>(currentFont));
+    EEPROM.put(ADRESS_X_MIN, X_MIN);
+    EEPROM.put(ADRESS_X_MAX, X_MAX);
+    EEPROM.put(ADRESS_Y_MIN, Y_MIN);
+    EEPROM.put(ADRESS_Y_MAX, Y_MAX);
+    EEPROM.put(ADRESS_FONT_TYPE, static_cast<uint8_t>(currentFont));
+    EEPROM.put(ADRESS_RUNTIME, RUNTIME_SECONDS);
+    EEPROM.put(ADRESS_SLEEPTIME, SLEEPTIME_MINUTES);
 
   EEPROM.end();
 }
@@ -264,22 +268,29 @@ void writeSettingsToEeprom() {
 void restoreSettingsFromEeprom() {
   // If a value is not yet stored they're max value so we ignore it
   EEPROM.begin();
-  uint8_t readByte;
+  uint8_t readUInt8;
+  uint16_t readUInt16;
 
-  readByte = EEPROM.read(ADRESS_X_MIN);
-  if(readByte != 255) X_MIN = readByte;
+  EEPROM.get(ADRESS_X_MIN, readUInt8);
+  if(readUInt8 != EMPTY_EEPROM_1BYTE) X_MIN = readUInt8;
 
-  readByte = EEPROM.read(ADRESS_X_MAX);
-  if(readByte != 255) X_MAX = readByte;
+  EEPROM.get(ADRESS_X_MAX, readUInt8);
+  if(readUInt8 != EMPTY_EEPROM_1BYTE) X_MAX = readUInt8;
 
-  readByte = EEPROM.read(ADRESS_Y_MIN);
-  if(readByte != 255) Y_MIN = readByte;
+  EEPROM.get(ADRESS_Y_MIN, readUInt8);
+  if(readUInt8 != EMPTY_EEPROM_1BYTE) Y_MIN = readUInt8;
 
-  readByte = EEPROM.read(ADRESS_Y_MAX);
-  if(readByte != 255) Y_MAX = readByte;
+  EEPROM.get(ADRESS_Y_MAX, readUInt8);
+  if(readUInt8 != EMPTY_EEPROM_1BYTE) Y_MAX = readUInt8;
 
-  readByte = EEPROM.read(ADRESS_FONT_TYPE);
-  if(readByte != 255) currentFont = static_cast<Fonts>(readByte);
+  EEPROM.get(ADRESS_FONT_TYPE, readUInt8);
+  if(readUInt8 != EMPTY_EEPROM_1BYTE) currentFont = static_cast<Fonts>(readUInt8);
+
+  EEPROM.get(ADRESS_RUNTIME, readUInt16);
+  if(readUInt16 != EMPTY_EEPROM_2BYTE) RUNTIME_SECONDS = readUInt16;
+
+  EEPROM.get(ADRESS_SLEEPTIME, readUInt16);
+  if(readUInt16 != EMPTY_EEPROM_2BYTE) SLEEPTIME_MINUTES = readUInt16;
 
   EEPROM.end();
 
