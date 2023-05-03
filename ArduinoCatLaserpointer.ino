@@ -56,7 +56,7 @@ unsigned short laserMoveTimerId = 0;
 unsigned short laserWakeUpTimerId = 0;
 unsigned short laserRuntimeUpTimerId = 0;
 auto laserWakeUpLambda = [] { startRun(); };
-auto laserRuntimeUpLambda = [] { endRun(); laserRuntimeUpTimerId = 0; };
+auto laserRuntimeUpLambda = [] { endRun(); };
 auto laserMoveLambda = [] { if(!mainMenu.isInMenu()) laserMove(); };
 
 void setup() {
@@ -134,7 +134,6 @@ void laserMove() {
 
 void startRun() {
   timer.reset(laserWakeUpTimerId);
-
   startLaser();
   
   laserMove();
@@ -144,6 +143,8 @@ void startRun() {
 void endRun() {
   timer.cancel(laserMoveTimerId);
   laserMoveTimerId = 0;
+  timer.cancel(laserRuntimeUpTimerId);
+  laserRuntimeUpTimerId = 0;
 
   stopLaser();
 }
