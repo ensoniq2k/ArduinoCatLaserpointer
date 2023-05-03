@@ -65,5 +65,5 @@ void initMenu() {
   displayMenu(MD_Menu::DISP_INIT);
   mainMenu.begin();
   mainMenu.setTimeout(MENU_TIMEOUT);
-  mainMenu.setMenuWrap(true);
+  mainMenu.setMenuWrap(false);
 }
