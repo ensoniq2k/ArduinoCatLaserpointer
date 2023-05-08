@@ -55,6 +55,30 @@ MD_Menu::value_t *menuSetFont(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqTyp
   return &menuValueBuffer;
 }
 
+MD_Menu::value_t *menuLaserBrightness(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
+  switch(reqType) {
+    case MD_Menu::REQ_GET:
+      menuValueBuffer.value = LASER_BRIGHTNESS / 10;
+      analogWrite(LASER_PIN, LASER_BRIGHTNESS);
+      break;
+
+    case MD_Menu::REQ_SET:
+      LASER_BRIGHTNESS = menuValueBuffer.value * 10;
+      analogWrite(LASER_PIN, LOW);
+      break;   
+
+    case MD_Menu::REQ_UPD:
+      analogWrite(LASER_PIN, menuValueBuffer.value);
+      break;
+
+    case MD_Menu::REQ_ESC:
+      analogWrite(LASER_PIN, LOW);
+      break;   
+  }
+
+  return &menuValueBuffer;
+}
+
 MD_Menu::value_t *menuSetMinimumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
   switch(reqType) {
     case MD_Menu::REQ_GET:
@@ -163,6 +187,24 @@ MD_Menu::value_t *menuSetMaximumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
   return &menuValueBuffer;
 }
 
+MD_Menu::value_t *menuCenterServos(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
+  switch(reqType) {
+    case MD_Menu::REQ_GET:
+      return nullptr; // nullptr means no confirmation required
+      break;
+
+    case MD_Menu::REQ_SET:
+      endRun();
+      displayToast(F("Centering\nServos"), 1000, true);
+      startLaser();
+      xAxis.write(90);
+      yAxis.write(90);
+      delay(1500);
+      stopLaser();
+      break;    
+  }
+}
+
 MD_Menu::value_t *menuSaveConfig(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
   switch(reqType) {
     case MD_Menu::REQ_GET:
@@ -175,6 +217,8 @@ MD_Menu::value_t *menuSaveConfig(MD_Menu::mnuId_t id, MD_Menu::requestType_t req
       break;    
   }
 }
+
+
 
 MD_Menu::userNavAction_t navigateMenu()
 {

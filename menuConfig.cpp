@@ -4,7 +4,7 @@
 // ID, Label, First mnuItem_t ID, Last mnuItem_t ID, CurrentItem (only used for internal track keeping so set to 0)
 const PROGMEM MD_Menu::mnuHeader_t menuHeader[] =
 {
-  { 10, "Main Menu",      10, 13, 0 },
+  { 10, "Main Menu",      10, 15, 0 },
   { 20, "X/Y Limits",     20, 23, 0 },
   { 30, "Timer Settings", 30, 31, 0 },
 };
@@ -20,6 +20,9 @@ const PROGMEM MD_Menu::mnuItem_t menuItems[] =
   { 11, "Timer Settings",           MD_Menu::MNU_MENU,        30 },
   { 12, "Display Font",             MD_Menu::MNU_INPUT_FB,    11 },
   { 13, "Save Settings",            MD_Menu::MNU_INPUT,       12 },
+  { 14, "Center Servos",            MD_Menu::MNU_INPUT,       13 },
+  { 15, "Laser Brightness",         MD_Menu::MNU_INPUT_FB,    14 },
+  
   
   // X/Y Limits submenu
   { 20, "X Minimum",                MD_Menu::MNU_INPUT_FB,    20 },
@@ -42,8 +45,10 @@ const PROGMEM char listFonts[] = "Adafruit|Arial|Arial bold|Callibri|Corsiva|Tim
 const PROGMEM MD_Menu::mnuInput_t menuInputs[] =
 {
   // Main
-  { 11, "Font",             MD_Menu::INP_LIST,   menuSetFont,     10,   0, 0,    0, 0, 0, listFonts },
-  { 12, "Save Settings",    MD_Menu::INP_RUN,    menuSaveConfig,  10,   0, 0,    0, 0, 0, nullptr },
+  { 11, "Font",             MD_Menu::INP_LIST,   menuSetFont,         10,   0, 0,    0,  0, 0, listFonts },
+  { 12, "Save Settings",    MD_Menu::INP_RUN,    menuSaveConfig,      10,   0, 0,    0,  0, 0, nullptr },
+  { 13, "Center Servos",    MD_Menu::INP_RUN,    menuCenterServos,    10,   0, 0,    0,  0, 0, nullptr },
+  { 14, "Brightness", MD_Menu::INP_INT,    menuLaserBrightness,        2,   1, 0,    25, 0, 10, nullptr },
 
   // X/Y Limits     
   { 20, "X Minimum",     MD_Menu::INP_INT,   menuSetMinimumX,  3,   1, 0,    180, 0, 10, nullptr },

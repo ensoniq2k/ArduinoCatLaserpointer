@@ -7,6 +7,8 @@ OneButton ButtonRight = OneButton(BUTTON_RIGHT, true, true);
 OneButton ButtonEnter = OneButton(BUTTON_ENTER, true, true);
 OneButton ButtonEscape = OneButton(BUTTON_ESCAPE, true, true);
 
+uint8_t LASER_BRIGHTNESS = 100;
+
 uint8_t X_MIN = 50;
 uint8_t X_MAX = 130;
 uint8_t Y_MIN = 50;
@@ -68,7 +70,7 @@ void setup() {
   pinMode(BUTTON_ESCAPE, INPUT_PULLUP);
 
   pinMode(LASER_PIN, OUTPUT);
-  digitalWrite(LASER_PIN, LOW);
+  analogWrite(LASER_PIN, LOW);
 
   ButtonLeft.attachClick([] { menuNavAction = MD_Menu::NAV_DEC; });
   ButtonRight.attachClick([] { menuNavAction = MD_Menu::NAV_INC; });
@@ -96,8 +98,10 @@ void loop() {
   // menuNavAction for starting and stopping manually
   if (!mainMenu.isInMenu())
   {
-    if (navigateMenu() == MD_Menu::NAV_SEL)
+    if (navigateMenu() == MD_Menu::NAV_SEL) {
+      endRun();
       mainMenu.runMenu(true);
+    }
   }
 
   mainMenu.runMenu();   // Must run in loop in order to work
@@ -136,8 +140,8 @@ void startRun() {
   timer.reset(laserWakeUpTimerId);
   startLaser();
   
-  laserMove();
   laserRuntimeUpTimerId = timer.setTimeout(laserRuntimeUpLambda, SECONDS_TO_MILLIS(RUNTIME_SECONDS));
+  laserMove();
 }
 
 void endRun() {
@@ -150,13 +154,13 @@ void endRun() {
 }
 
 void startLaser() {
-  digitalWrite(LASER_PIN, HIGH);
+  analogWrite(LASER_PIN, LASER_BRIGHTNESS);
   xAxis.attach(X_SERVO_PIN);
   yAxis.attach(Y_SERVO_PIN);
 }
 
 void stopLaser() {
-  digitalWrite(LASER_PIN, LOW);
+  analogWrite(LASER_PIN, LOW);
   xAxis.detach();
   yAxis.detach();
 }
@@ -237,7 +241,7 @@ void moveInCircle() {
 void triggerLaser() {
   if (laserOffTicks == 0) {
     if (random(1, 1250) == 1) {
-      digitalWrite(LASER_PIN, LOW);
+      analogWrite(LASER_PIN, LOW);
       laserOffDuration = random(MIN_LASER_OFF_TICKS, MAX_LASER_OFF_TICKS);
       laserOffTicks = 1;
     }
@@ -246,7 +250,7 @@ void triggerLaser() {
       laserOffTicks++;
     else {
       laserOffTicks = 0;
-      digitalWrite(LASER_PIN, HIGH);
+      analogWrite(LASER_PIN, LASER_BRIGHTNESS);
     }
   }
 }
@@ -261,6 +265,7 @@ void writeSettingsToEeprom() {
     EEPROM.put(ADRESS_FONT_TYPE, static_cast<uint8_t>(currentFont));
     EEPROM.put(ADRESS_RUNTIME, RUNTIME_SECONDS);
     EEPROM.put(ADRESS_SLEEPTIME, SLEEPTIME_MINUTES);
+    EEPROM.put(ADRESS_LASER_BRIGHTNESS, LASER_BRIGHTNESS);
 
   EEPROM.end();
 }
@@ -292,6 +297,9 @@ void restoreSettingsFromEeprom() {
 
   EEPROM.get(ADRESS_SLEEPTIME, readUInt16);
   if(readUInt16 != EMPTY_EEPROM_2BYTE) SLEEPTIME_MINUTES = readUInt16;
+
+  EEPROM.get(ADRESS_LASER_BRIGHTNESS, readUInt8);
+  if(readUInt8 != EMPTY_EEPROM_1BYTE) LASER_BRIGHTNESS = readUInt8;
 
   EEPROM.end();
 

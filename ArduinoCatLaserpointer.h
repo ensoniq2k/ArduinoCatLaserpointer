@@ -15,13 +15,13 @@
 
 #define X_SERVO_PIN 5
 #define Y_SERVO_PIN 6
-#define LASER_PIN 4
+#define LASER_PIN 3
 
 #define MIDPOINT(min, max) (min + max) / 2
-#define SECONDS_TO_MILLIS(sec) sec * 1000
-#define MINUTES_TO_MILLIS(min) min * 60000
-#define MILLIS_TO_SECONDS(ms) ms / 1000
-#define MILLIS_TO_MINUTES(ms) ms / 60000
+#define SECONDS_TO_MILLIS(sec) (static_cast<unsigned long>(sec) * 1000UL)
+#define MINUTES_TO_MILLIS(min) (static_cast<unsigned long>(min) * 60000UL)
+#define MILLIS_TO_SECONDS(ms) ((ms) / 1000)
+#define MILLIS_TO_MINUTES(ms) ((ms) / 60000)
 
 extern OneButton ButtonLeft;
 extern OneButton ButtonRight;
@@ -30,6 +30,8 @@ extern OneButton ButtonEscape;
 
 extern Servo xAxis;
 extern Servo yAxis;
+
+extern uint8_t LASER_BRIGHTNESS;
 
 // X/Y Boundaries for the laser to stay inside while moving
 extern uint8_t X_MIN;
