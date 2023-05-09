@@ -16,7 +16,7 @@ const PROGMEM MD_Menu::mnuHeader_t menuHeader[] =
 const PROGMEM MD_Menu::mnuItem_t menuItems[] =
 {
   // Main (Root) menu
-  { 10, "Laser boundaries",               MD_Menu::MNU_MENU,        20 },
+  { 10, "Laser boundaries",         MD_Menu::MNU_MENU,        20 },
   { 11, "Timer Settings",           MD_Menu::MNU_MENU,        30 },
   { 12, "Display Font",             MD_Menu::MNU_INPUT_FB,    11 },
   { 13, "Save Settings",            MD_Menu::MNU_INPUT,       12 },
@@ -25,10 +25,10 @@ const PROGMEM MD_Menu::mnuItem_t menuItems[] =
   
   
   // X/Y Limits submenu
-  { 20, "X Minimum",                MD_Menu::MNU_INPUT_FB,    20 },
-  { 21, "X Maximum",                MD_Menu::MNU_INPUT_FB,    21 },
-  { 22, "Y Minimum",                MD_Menu::MNU_INPUT_FB,    22 },
-  { 23, "Y Maximum",                MD_Menu::MNU_INPUT_FB,    23 },
+  { MENU_SIDE_LEFT,  "Side left",                MD_Menu::MNU_INPUT_FB,    MENU_SIDE_LEFT },
+  { MENU_SIDE_RIGHT, "Side right",               MD_Menu::MNU_INPUT_FB,  MENU_SIDE_RIGHT },
+  { MENU_FRONT_FAR,  "Front far",                MD_Menu::MNU_INPUT_FB,    MENU_FRONT_FAR },
+  { MENU_FRONT_NEAR, "Front near",               MD_Menu::MNU_INPUT_FB,  MENU_FRONT_NEAR },
 
   // Auto Timer   
   { 30,              "Restart sleep timer",      MD_Menu::MNU_INPUT,       30 },
@@ -55,10 +55,10 @@ const PROGMEM MD_Menu::mnuInput_t menuInputs[] =
   { 14, "Brightness",       MD_Menu::INP_INT,     menuLaserBrightness,  2,   1, 0,    25, 0, 10, nullptr },
 
   // X/Y Limits     
-  { 20, "Side left",      MD_Menu::INP_INT,   menuSetMinimumX,  3,   1, 0,    180, 0, 10, nullptr },
-  { 21, "Side right",     MD_Menu::INP_INT,   menuSetMaximumX,  3,   1, 0,    180, 0, 10, nullptr },
-  { 22, "Front far",      MD_Menu::INP_INT,   menuSetMinimumY,  3,   1, 0,    180, 0, 10, nullptr },
-  { 23, "Front near",     MD_Menu::INP_INT,   menuSetMaximumY,  3,   1, 0,    180, 0, 10, nullptr },
+  { MENU_SIDE_LEFT,  "Side left",      MD_Menu::INP_INT,   menuSetMinimumX,  3,   1, 0,    180, 0, 10, nullptr },
+  { MENU_SIDE_RIGHT, "Side right",     MD_Menu::INP_INT,   menuSetMaximumX,  3,   1, 0,    180, 0, 10, nullptr },
+  { MENU_FRONT_FAR,  "Front far",      MD_Menu::INP_INT,   menuSetMinimumY,  3,   1, 0,    180, 0, 10, nullptr },
+  { MENU_FRONT_NEAR, "Front near",     MD_Menu::INP_INT,   menuSetMaximumY,  3,   1, 0,    180, 0, 10, nullptr },
 
   // Auto Timer
   { 30,               "Restart sleep time",  MD_Menu::INP_RUN,   menuRestartSleepTimer, 0,   0,  0,  0,   0,  10, nullptr },

@@ -10,6 +10,10 @@
 #include <SSD1306Ascii.h>
 #include <SSD1306AsciiWire.h>
 
+#define MENU_SIDE_LEFT 20
+#define MENU_SIDE_RIGHT 21
+#define MENU_FRONT_FAR 22
+#define MENU_FRONT_NEAR 23
 #define MENU_RUN_SEC 31
 #define MENU_RUN_MIN 32
 #define MENU_SLEEP_MIN 33
