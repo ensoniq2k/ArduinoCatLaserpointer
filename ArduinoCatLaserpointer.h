@@ -20,8 +20,11 @@
 #define MIDPOINT(min, max) (min + max) / 2
 #define SECONDS_TO_MILLIS(sec) (static_cast<unsigned long>(sec) * 1000UL)
 #define MINUTES_TO_MILLIS(min) (static_cast<unsigned long>(min) * 60000UL)
-#define MILLIS_TO_SECONDS(ms) ((ms) / 1000)
-#define MILLIS_TO_MINUTES(ms) ((ms) / 60000)
+#define MINUTES_PER_DAY 1440
+#define MINUTES_PER_HOUR 60
+#define SECONDS_PER_MINUTE 60
+#define MILLIS_TO_SECONDS(ms) (ms / 1000)
+#define MILLIS_TO_MINUTES(ms) (ms / 60000)
 
 extern OneButton ButtonLeft;
 extern OneButton ButtonRight;
@@ -63,4 +66,5 @@ void moveAxis(int& interval, int& pos, int& tunraround, int axisMin, int axisMax
 void triggerLaser();
 void laserMove();
 void writeSettingsToEeprom();
-void updateDefaultValues();
+void updateSettings();
+void restartSleepTimer();

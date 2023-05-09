@@ -9,10 +9,10 @@ OneButton ButtonEscape = OneButton(BUTTON_ESCAPE, true, true);
 
 uint8_t LASER_BRIGHTNESS = 100;
 
-uint8_t X_MIN = 50;
-uint8_t X_MAX = 130;
-uint8_t Y_MIN = 50;
-uint8_t Y_MAX = 130;
+uint8_t X_MIN = 100;
+uint8_t X_MAX = 145;
+uint8_t Y_MIN = 100;
+uint8_t Y_MAX = 145;
 
 uint16_t RUNTIME_SECONDS = 180;
 uint16_t SLEEPTIME_MINUTES = 180;
@@ -28,7 +28,7 @@ const unsigned short MAX_DELAY = 50;
 const uint8_t MIN_LASER_OFF_TICKS = 5;    
 const uint8_t MAX_LASER_OFF_TICKS = 50;
 
-// 
+// How many ticks have to pass until the laser is moved one step
 const uint8_t MIN_AXIS_MOVE_DECISSION_TICKS = 20;
 const uint8_t MAX_AXIS_MOVE_DECISSION_TICKS = 100;
 
@@ -80,7 +80,7 @@ void setup() {
   restoreSettingsFromEeprom();
   initMenu();
 
-  laserWakeUpTimerId = timer.setInterval(laserWakeUpLambda, MINUTES_TO_MILLIS(SLEEPTIME_MINUTES));
+  restartSleepTimer();
 }
 
 void loop() {
@@ -139,7 +139,7 @@ void laserMove() {
 void startRun() {
   timer.reset(laserWakeUpTimerId);
   startLaser();
-  
+
   laserRuntimeUpTimerId = timer.setTimeout(laserRuntimeUpLambda, SECONDS_TO_MILLIS(RUNTIME_SECONDS));
   laserMove();
 }
@@ -303,14 +303,19 @@ void restoreSettingsFromEeprom() {
 
   EEPROM.end();
 
-  updateDefaultValues();
+  updateSettings();
 }
 
-// Recalculation after reading from EEPROM
-void updateDefaultValues() {
+// Recalculation after reading from EEPROM or changing settings
+void updateSettings() {
   xPos = MIDPOINT(X_MIN, X_MAX);
   yPos = MIDPOINT(Y_MIN, Y_MAX);
 
   xTurnaround = X_MAX;
   yTurnaround = Y_MAX;
+}
+
+void restartSleepTimer() {
+  timer.cancel(laserWakeUpTimerId);
+  laserWakeUpTimerId = timer.setInterval(laserWakeUpLambda, MINUTES_TO_MILLIS(SLEEPTIME_MINUTES));
 }

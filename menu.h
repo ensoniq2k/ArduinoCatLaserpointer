@@ -10,6 +10,12 @@
 #include <SSD1306Ascii.h>
 #include <SSD1306AsciiWire.h>
 
+#define MENU_RUN_SEC 31
+#define MENU_RUN_MIN 32
+#define MENU_SLEEP_MIN 33
+#define MENU_SLEEP_HOUR 34
+#define MENU_SLEEP_DAY 35
+
 
 enum class Fonts : uint8_t {
   Adafruit5x7 = 0,
@@ -38,6 +44,7 @@ MD_Menu::value_t *menuSetMaximumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
 MD_Menu::value_t *menuSaveConfig(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType);
 MD_Menu::value_t *menuCenterServos(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType);
 MD_Menu::value_t *menuLaserBrightness(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType);
+MD_Menu::value_t *menuRestartSleepTimer(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType);
 MD_Menu::value_t *menuSetRunDuration(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType);
 MD_Menu::value_t *menuSetRunInterval(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType);
 

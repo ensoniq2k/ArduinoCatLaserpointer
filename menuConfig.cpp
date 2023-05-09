@@ -4,9 +4,9 @@
 // ID, Label, First mnuItem_t ID, Last mnuItem_t ID, CurrentItem (only used for internal track keeping so set to 0)
 const PROGMEM MD_Menu::mnuHeader_t menuHeader[] =
 {
-  { 10, "Main Menu",      10, 15, 0 },
-  { 20, "X/Y Limits",     20, 23, 0 },
-  { 30, "Timer Settings", 30, 31, 0 },
+  { 10, "Main Menu",            10, 15, 0 },
+  { 20, "Laser boundaries",     20, 23, 0 },
+  { 30, "Timer Settings",       30, 35, 0 },
 };
 
 // Menu Items ----------
@@ -16,7 +16,7 @@ const PROGMEM MD_Menu::mnuHeader_t menuHeader[] =
 const PROGMEM MD_Menu::mnuItem_t menuItems[] =
 {
   // Main (Root) menu
-  { 10, "X/Y Limits",               MD_Menu::MNU_MENU,        20 },
+  { 10, "Laser boundaries",               MD_Menu::MNU_MENU,        20 },
   { 11, "Timer Settings",           MD_Menu::MNU_MENU,        30 },
   { 12, "Display Font",             MD_Menu::MNU_INPUT_FB,    11 },
   { 13, "Save Settings",            MD_Menu::MNU_INPUT,       12 },
@@ -31,8 +31,12 @@ const PROGMEM MD_Menu::mnuItem_t menuItems[] =
   { 23, "Y Maximum",                MD_Menu::MNU_INPUT_FB,    23 },
 
   // Auto Timer   
-  { 30, "Run duration",             MD_Menu::MNU_INPUT,       30 },
-  { 31, "Run interval",             MD_Menu::MNU_INPUT,       31 },
+  { 30,              "Restart sleep timer",      MD_Menu::MNU_INPUT,       30 },
+  { MENU_RUN_SEC,    "Run seconds",              MD_Menu::MNU_INPUT,       MENU_RUN_SEC },
+  { MENU_RUN_MIN,    "Run minutes",              MD_Menu::MNU_INPUT,       MENU_RUN_MIN },
+  { MENU_SLEEP_MIN,  "Sleep minutes",            MD_Menu::MNU_INPUT,       MENU_SLEEP_MIN },
+  { MENU_SLEEP_HOUR, "Sleep hours",              MD_Menu::MNU_INPUT,       MENU_SLEEP_DAY },
+  { MENU_SLEEP_DAY,  "Sleep days",               MD_Menu::MNU_INPUT,       MENU_SLEEP_HOUR },
 };
 
 // Input Items ---------
@@ -45,20 +49,24 @@ const PROGMEM char listFonts[] = "Adafruit|Arial|Arial bold|Callibri|Corsiva|Tim
 const PROGMEM MD_Menu::mnuInput_t menuInputs[] =
 {
   // Main
-  { 11, "Font",             MD_Menu::INP_LIST,   menuSetFont,         10,   0, 0,    0,  0, 0, listFonts },
-  { 12, "Save Settings",    MD_Menu::INP_RUN,    menuSaveConfig,      10,   0, 0,    0,  0, 0, nullptr },
-  { 13, "Center Servos",    MD_Menu::INP_RUN,    menuCenterServos,    10,   0, 0,    0,  0, 0, nullptr },
-  { 14, "Brightness", MD_Menu::INP_INT,    menuLaserBrightness,        2,   1, 0,    25, 0, 10, nullptr },
+  { 11, "Font",             MD_Menu::INP_LIST,    menuSetFont,         10,   0, 0,    0,  0, 0, listFonts },
+  { 12, "Save Settings",    MD_Menu::INP_RUN,     menuSaveConfig,      10,   0, 0,    0,  0, 0, nullptr },
+  { 13, "Center Servos",    MD_Menu::INP_RUN,     menuCenterServos,    10,   0, 0,    0,  0, 0, nullptr },
+  { 14, "Brightness",       MD_Menu::INP_INT,     menuLaserBrightness,  2,   1, 0,    25, 0, 10, nullptr },
 
   // X/Y Limits     
-  { 20, "X Minimum",     MD_Menu::INP_INT,   menuSetMinimumX,  3,   1, 0,    180, 0, 10, nullptr },
-  { 21, "X Maximum",     MD_Menu::INP_INT,   menuSetMaximumX,  3,   1, 0,    180, 0, 10, nullptr },
-  { 22, "Y Minimum",     MD_Menu::INP_INT,   menuSetMinimumY,  3,   1, 0,    180, 0, 10, nullptr },
-  { 23, "Y Minimum",     MD_Menu::INP_INT,   menuSetMaximumY,  3,   1, 0,    180, 0, 10, nullptr },
+  { 20, "Side left",      MD_Menu::INP_INT,   menuSetMinimumX,  3,   1, 0,    180, 0, 10, nullptr },
+  { 21, "Side right",     MD_Menu::INP_INT,   menuSetMaximumX,  3,   1, 0,    180, 0, 10, nullptr },
+  { 22, "Front far",      MD_Menu::INP_INT,   menuSetMinimumY,  3,   1, 0,    180, 0, 10, nullptr },
+  { 23, "Front near",     MD_Menu::INP_INT,   menuSetMaximumY,  3,   1, 0,    180, 0, 10, nullptr },
 
   // Auto Timer
-  { 30, "Seconds",     MD_Menu::INP_INT,   menuSetRunDuration,  3,   1, 0,   900,   0, 10, nullptr },
-  { 31, "Minutes",     MD_Menu::INP_INT,   menuSetRunInterval,  4,   15, 0,  1440,  0, 10, nullptr },
+  { 30,               "Restart sleep time",  MD_Menu::INP_RUN,   menuRestartSleepTimer, 0,   0,  0,  0,   0,  10, nullptr },
+  { MENU_RUN_SEC,     "Run Seconds",          MD_Menu::INP_INT,   menuSetRunDuration,    2,   1,  0,  59,  0,  10, nullptr },
+  { MENU_RUN_MIN,     "Run Minutes",          MD_Menu::INP_INT,   menuSetRunDuration,    2,   1,  0,  15,  0,  10, nullptr },
+  { MENU_SLEEP_MIN,   "Sleep Minutes",        MD_Menu::INP_INT,   menuSetRunInterval,    2,   0,  0,  60,  0,  10, nullptr },
+  { MENU_SLEEP_HOUR,  "Sleep Hours",          MD_Menu::INP_INT,   menuSetRunInterval,    2,   0,  0,  24,  0,  10, nullptr },
+  { MENU_SLEEP_DAY,   "Sleep Days",           MD_Menu::INP_INT,   menuSetRunInterval,    2,   0,  0,  30,  0,  10, nullptr },
 };
 
 MD_Menu mainMenu(navigateMenu, displayMenu,        // user navigation and display

@@ -2,15 +2,38 @@
 
 MD_Menu::value_t menuValueBuffer;
 
+MD_Menu::value_t *menuRestartSleepTimer(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
+  switch(reqType) {
+    case MD_Menu::REQ_GET:
+      return nullptr; // nullptr means no confirmation required
+      break;
+
+    case MD_Menu::REQ_SET:
+      restartSleepTimer();
+      displayToast(F("Timer restarted!"), 1000, true);
+      break;    
+  }
+}
 
 MD_Menu::value_t *menuSetRunDuration(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
   switch(reqType) {
   case MD_Menu::REQ_GET:
-    menuValueBuffer.value = RUNTIME_SECONDS;
+    if(id == MENU_RUN_SEC) {
+      menuValueBuffer.value = RUNTIME_SECONDS % 60;
+    }
+    if(id == MENU_RUN_MIN) {
+      menuValueBuffer.value = RUNTIME_SECONDS / 60;
+    }
     break;
 
   case MD_Menu::REQ_SET:
-    RUNTIME_SECONDS = menuValueBuffer.value;    
+    if(id == MENU_RUN_SEC) {
+      RUNTIME_SECONDS = (RUNTIME_SECONDS / 60 * 60) + menuValueBuffer.value;    
+    }
+    if(id == MENU_RUN_MIN) {
+      menuValueBuffer.value = (RUNTIME_SECONDS % 60) + menuValueBuffer.value * 60;
+    }
+
     break;   
   }
 
@@ -18,13 +41,50 @@ MD_Menu::value_t *menuSetRunDuration(MD_Menu::mnuId_t id, MD_Menu::requestType_t
 }
 
 MD_Menu::value_t *menuSetRunInterval(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
+  uint16_t remainTime = SLEEPTIME_MINUTES;
+  uint8_t day, hour, min;
+  
+  day = remainTime / MINUTES_PER_DAY; 
+  remainTime = remainTime % MINUTES_PER_DAY;
+
+  hour = remainTime / MINUTES_PER_HOUR;
+  remainTime = remainTime % MINUTES_PER_HOUR;
+
+  min = remainTime;
+
   switch(reqType) {
   case MD_Menu::REQ_GET:
-    menuValueBuffer.value = SLEEPTIME_MINUTES;
+      if(id == MENU_SLEEP_MIN) {
+        menuValueBuffer.value = min;
+      }
+      if(id == MENU_SLEEP_HOUR) {
+        menuValueBuffer.value = hour;
+      }
+      if(id == MENU_SLEEP_DAY) {
+        menuValueBuffer.value = day;
+      }
+
     break;
 
   case MD_Menu::REQ_SET:
-    SLEEPTIME_MINUTES = menuValueBuffer.value;    
+      if(id == MENU_SLEEP_MIN) {
+        SLEEPTIME_MINUTES = menuValueBuffer.value + (hour * MINUTES_PER_HOUR) + (day * MINUTES_PER_DAY);
+      }
+      if(id == MENU_SLEEP_HOUR) {
+        SLEEPTIME_MINUTES = min + (menuValueBuffer.value * MINUTES_PER_HOUR) + (day * MINUTES_PER_DAY);
+      }
+      if(id == MENU_SLEEP_DAY) {
+      }
+        SLEEPTIME_MINUTES = min + (hour * MINUTES_PER_HOUR) + (menuValueBuffer.value * MINUTES_PER_DAY);
+      
+      // Sleep time must be longer than runtime to prevent unexpected behaviour
+      if(SLEEPTIME_MINUTES < RUNTIME_SECONDS / SECONDS_PER_MINUTE + 1) {
+        // Just to be safe we set it twice as long as the runtime
+        SLEEPTIME_MINUTES = (RUNTIME_SECONDS / SECONDS_PER_MINUTE) * 2;
+      }
+
+      restartSleepTimer();
+
     break;   
   } 
 
@@ -217,8 +277,6 @@ MD_Menu::value_t *menuSaveConfig(MD_Menu::mnuId_t id, MD_Menu::requestType_t req
       break;    
   }
 }
-
-
 
 MD_Menu::userNavAction_t navigateMenu()
 {
