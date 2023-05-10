@@ -6,7 +6,7 @@ const PROGMEM MD_Menu::mnuHeader_t menuHeader[] =
 {
   { 10, "Main Menu",            10, 15, 0 },
   { 20, "Laser limits",         20, 23, 0 },
-  { 30, "Timer Settings",       30, 35, 0 },
+  { 30, "Timer Settings",       30, 36, 0 },
 };
 
 // Menu Items ----------
@@ -31,17 +31,18 @@ const PROGMEM MD_Menu::mnuItem_t menuItems[] =
   { MENU_FRONT_NEAR, "Front near",               MD_Menu::MNU_INPUT_FB,  MENU_FRONT_NEAR },
 
   // Auto Timer   
-  { 30,              "Restart sleep",      MD_Menu::MNU_INPUT,       30 },
-  { MENU_RUN_SEC,    "Run seconds",              MD_Menu::MNU_INPUT,       MENU_RUN_SEC },
-  { MENU_RUN_MIN,    "Run minutes",              MD_Menu::MNU_INPUT,       MENU_RUN_MIN },
-  { MENU_SLEEP_MIN,  "Sleep minutes",            MD_Menu::MNU_INPUT,       MENU_SLEEP_MIN },
-  { MENU_SLEEP_HOUR, "Sleep hours",              MD_Menu::MNU_INPUT,       MENU_SLEEP_HOUR },
-  { MENU_SLEEP_DAY,  "Sleep days",               MD_Menu::MNU_INPUT,       MENU_SLEEP_DAY },
+  { 30,              "Next run?",         MD_Menu::MNU_INPUT,        30 },
+  { 31,              "Restart sleep",      MD_Menu::MNU_INPUT,       31 },
+  { MENU_RUN_SEC,    "Run seconds",        MD_Menu::MNU_INPUT,       MENU_RUN_SEC },
+  { MENU_RUN_MIN,    "Run minutes",        MD_Menu::MNU_INPUT,       MENU_RUN_MIN },
+  { MENU_SLEEP_MIN,  "Sleep minutes",      MD_Menu::MNU_INPUT,       MENU_SLEEP_MIN },
+  { MENU_SLEEP_HOUR, "Sleep hours",        MD_Menu::MNU_INPUT,       MENU_SLEEP_HOUR },
+  { MENU_SLEEP_DAY,  "Sleep days",         MD_Menu::MNU_INPUT,       MENU_SLEEP_DAY },
 };
 
 // Input Items ---------
 //const PROGMEM char listOrientation[] = "Lefthanded|Top -> Bottom|Righthanded|Bottom -> Top";
-const PROGMEM char listFonts[] = "Adafruit|Arial|Arial bold|Callibri|Corsiva|Times|Verdana";
+const PROGMEM char listFonts[] = "Adafruit|Arial|Arial bold|Corsiva|Verdana";
 
 
 // ID, Label, inputAction_t = type of input, callback for get/set of value, width of field on display, 
@@ -61,7 +62,8 @@ const PROGMEM MD_Menu::mnuInput_t menuInputs[] =
   { MENU_FRONT_NEAR, "Front near",     MD_Menu::INP_INT,   menuSetMaximumY,  3,   1, 0,    180, 0, 10, nullptr },
 
   // Auto Timer
-  { 30,               "Restart sleep",  MD_Menu::INP_RUN,   menuRestartSleepTimer, 0,   0,  0,  0,   0,  10, nullptr },
+  { 30,               "Next run?",            MD_Menu::INP_RUN,   menuShowNextRun,       0,   0,  0,  0,   0,  10, nullptr },
+  { 31,               "Restart sleep",        MD_Menu::INP_RUN,   menuRestartSleepTimer, 0,   0,  0,  0,   0,  10, nullptr },
   { MENU_RUN_SEC,     "Run Seconds",          MD_Menu::INP_INT,   menuSetRunDuration,    2,   0,  0,  59,  0,  10, nullptr },
   { MENU_RUN_MIN,     "Run Minutes",          MD_Menu::INP_INT,   menuSetRunDuration,    2,   0,  0,  30,  0,  10, nullptr },
   { MENU_SLEEP_MIN,   "Sleep Minutes",        MD_Menu::INP_INT,   menuSetRunInterval,    2,   0,  0,  60,  0,  10, nullptr },

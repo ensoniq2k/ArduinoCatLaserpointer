@@ -56,14 +56,8 @@ void displaySetFont(Fonts font) {
     case Fonts::Arial_bold_14:
       display.setFont(Arial_bold_14);
       break;
-    case Fonts::Callibri14:
-      display.setFont(Callibri14);
-      break;
     case Fonts::Corsiva_12:
       display.setFont(Corsiva_12);
-      break;
-    case Fonts::TimesNewRoman13:
-      display.setFont(TimesNewRoman13);
       break;
     case Fonts::Verdana12:
       display.setFont(Verdana12);
@@ -84,6 +78,15 @@ void displayToast(const __FlashStringHelper* messageInProgmem, unsigned short du
   char message[strlen_P((const char*)messageInProgmem) + 1]; // Allocate a char array on the stack
   strcpy_P(message, (const char*)messageInProgmem); // Copy the characters from the __FlashStringHelper object into the char array
 
+  if(fontSize2x) display.set2X();
+  display.setRow(3);
+  display.setCol(0);
+  display.print(message);
+  delay(duration);
+  display.set1X();
+}
+
+void displayToast(const char* message, unsigned short duration, bool fontSize2x = false) {
   if(fontSize2x) display.set2X();
   display.setRow(3);
   display.setCol(0);

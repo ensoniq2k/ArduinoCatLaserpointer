@@ -137,8 +137,6 @@ void laserMove() {
 }
 
 void startRun() {
-  Serial.println(F("Starting run"));
-
   randomSeed(analogRead(0));
 
   if(RUNTIME_SECONDS < 1) {
@@ -153,8 +151,6 @@ void startRun() {
 }
 
 void endRun() {
-  Serial.println(F("Ending run"));
-
   timer.cancel(laserMoveTimerId);
   laserMoveTimerId = 0;
   timer.cancel(laserRuntimeUpTimerId);
@@ -328,4 +324,11 @@ void updateSettings() {
 void restartSleepTimer() {
   timer.cancel(laserWakeUpTimerId);
   laserWakeUpTimerId = timer.setInterval(laserWakeUpLambda, MINUTES_TO_MILLIS(SLEEPTIME_MINUTES));
+}
+
+uint32_t getNextRunSeconds() {
+  if(laserWakeUpTimerId > 0) {
+    return MILLIS_TO_SECONDS(timer.getRemaining(laserWakeUpTimerId));
+  }
+  return 0;
 }

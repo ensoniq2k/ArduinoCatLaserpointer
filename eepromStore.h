@@ -11,5 +11,6 @@
 #define ADRESS_RUNTIME ADRESS_FONT_TYPE + sizeof(Fonts)
 #define ADRESS_SLEEPTIME ADRESS_RUNTIME + sizeof(uint16_t)
 
-#define ADRESS_LASER_BRIGHTNESS ADRESS_SLEEPTIME + sizeof(uint8_t)
-#define ADRESS_ ADRESS_LASER_BRIGHTNESS + sizeof(uint16_t)
+#define ADRESS_LASER_BRIGHTNESS ADRESS_SLEEPTIME + sizeof(uint16_t)
+
+#define ADRESS_ ADRESS_LASER_BRIGHTNESS + sizeof(uint8_t)

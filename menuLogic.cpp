@@ -10,7 +10,7 @@ MD_Menu::value_t *menuRestartSleepTimer(MD_Menu::mnuId_t id, MD_Menu::requestTyp
 
     case MD_Menu::REQ_SET:
       restartSleepTimer();
-      displayToast(F("Timer restarted!"), 1000, true);
+      displayToast(F("Timer restarted!"), 1000, false);
       break;    
   }
 }
@@ -41,21 +41,19 @@ MD_Menu::value_t *menuSetRunDuration(MD_Menu::mnuId_t id, MD_Menu::requestType_t
 }
 
 MD_Menu::value_t *menuSetRunInterval(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
-  uint16_t remainTime = SLEEPTIME_MINUTES;
-  uint8_t day, hour, min;
+  uint16_t remainMin = SLEEPTIME_MINUTES;
+  uint8_t day, hour;
   
-  day = remainTime / MINUTES_PER_DAY; 
-  remainTime = remainTime % MINUTES_PER_DAY;
+  day = remainMin / MINUTES_PER_DAY; 
+  remainMin = remainMin % MINUTES_PER_DAY;
 
-  hour = remainTime / MINUTES_PER_HOUR;
-  remainTime = remainTime % MINUTES_PER_HOUR;
-
-  min = remainTime;
+  hour = remainMin / MINUTES_PER_HOUR;
+  remainMin = remainMin % MINUTES_PER_HOUR;
 
   switch(reqType) {
   case MD_Menu::REQ_GET:
       if(id == MENU_SLEEP_MIN) {
-        menuValueBuffer.value = min;
+        menuValueBuffer.value = remainMin;
       }
       if(id == MENU_SLEEP_HOUR) {
         menuValueBuffer.value = hour;
@@ -71,10 +69,10 @@ MD_Menu::value_t *menuSetRunInterval(MD_Menu::mnuId_t id, MD_Menu::requestType_t
         SLEEPTIME_MINUTES = menuValueBuffer.value + (hour * MINUTES_PER_HOUR) + (day * MINUTES_PER_DAY);
       }
       if(id == MENU_SLEEP_HOUR) {
-        SLEEPTIME_MINUTES = min + (menuValueBuffer.value * MINUTES_PER_HOUR) + (day * MINUTES_PER_DAY);
+        SLEEPTIME_MINUTES = remainMin + (menuValueBuffer.value * MINUTES_PER_HOUR) + (day * MINUTES_PER_DAY);
       }
       if(id == MENU_SLEEP_DAY) {
-        SLEEPTIME_MINUTES = min + (hour * MINUTES_PER_HOUR) + (menuValueBuffer.value * MINUTES_PER_DAY);
+        SLEEPTIME_MINUTES = remainMin + (hour * MINUTES_PER_HOUR) + (menuValueBuffer.value * MINUTES_PER_DAY);
       }
       
       // Sleep time must be longer than runtime to prevent unexpected behaviour
@@ -262,6 +260,34 @@ MD_Menu::value_t *menuCenterServos(MD_Menu::mnuId_t id, MD_Menu::requestType_t r
       delay(1500);
       stopLaser();
       break;    
+  }
+}
+
+
+
+MD_Menu::value_t *menuShowNextRun(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
+  switch(reqType) {
+    case MD_Menu::REQ_GET:
+      return nullptr; // nullptr means no confirmation required
+      break;
+
+    case MD_Menu::REQ_SET:
+      uint16_t remainSeconds = getNextRunSeconds();
+      uint8_t day, hour, min;
+      
+      day = remainSeconds / SECONDS_PER_DAY; 
+      remainSeconds = remainSeconds % SECONDS_PER_DAY;
+
+      hour = remainSeconds / SECONDS_PER_HOUR;
+      remainSeconds = remainSeconds % SECONDS_PER_HOUR;
+
+      min = remainSeconds / SECONDS_PER_MINUTE;
+      remainSeconds = remainSeconds % SECONDS_PER_MINUTE;
+
+      const char timeMessage[30];
+      sprintf(timeMessage, "Next run in\n%02u Days %02u:%02u:%02u", day, hour, min, remainSeconds);
+      displayToast(timeMessage, 1500, false);
+    break;
   }
 }
 
