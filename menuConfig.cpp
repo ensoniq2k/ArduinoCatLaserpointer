@@ -5,7 +5,7 @@
 const PROGMEM MD_Menu::mnuHeader_t menuHeader[] =
 {
   { 10, "Main Menu",            10, 15, 0 },
-  { 20, "Laser boundaries",     20, 23, 0 },
+  { 20, "Laser limits",         20, 23, 0 },
   { 30, "Timer Settings",       30, 35, 0 },
 };
 
@@ -16,7 +16,7 @@ const PROGMEM MD_Menu::mnuHeader_t menuHeader[] =
 const PROGMEM MD_Menu::mnuItem_t menuItems[] =
 {
   // Main (Root) menu
-  { 10, "Laser boundaries",         MD_Menu::MNU_MENU,        20 },
+  { 10, "Laser limits",             MD_Menu::MNU_MENU,        20 },
   { 11, "Timer Settings",           MD_Menu::MNU_MENU,        30 },
   { 12, "Display Font",             MD_Menu::MNU_INPUT_FB,    11 },
   { 13, "Save Settings",            MD_Menu::MNU_INPUT,       12 },
@@ -31,12 +31,12 @@ const PROGMEM MD_Menu::mnuItem_t menuItems[] =
   { MENU_FRONT_NEAR, "Front near",               MD_Menu::MNU_INPUT_FB,  MENU_FRONT_NEAR },
 
   // Auto Timer   
-  { 30,              "Restart sleep timer",      MD_Menu::MNU_INPUT,       30 },
+  { 30,              "Restart sleep",      MD_Menu::MNU_INPUT,       30 },
   { MENU_RUN_SEC,    "Run seconds",              MD_Menu::MNU_INPUT,       MENU_RUN_SEC },
   { MENU_RUN_MIN,    "Run minutes",              MD_Menu::MNU_INPUT,       MENU_RUN_MIN },
   { MENU_SLEEP_MIN,  "Sleep minutes",            MD_Menu::MNU_INPUT,       MENU_SLEEP_MIN },
-  { MENU_SLEEP_HOUR, "Sleep hours",              MD_Menu::MNU_INPUT,       MENU_SLEEP_DAY },
-  { MENU_SLEEP_DAY,  "Sleep days",               MD_Menu::MNU_INPUT,       MENU_SLEEP_HOUR },
+  { MENU_SLEEP_HOUR, "Sleep hours",              MD_Menu::MNU_INPUT,       MENU_SLEEP_HOUR },
+  { MENU_SLEEP_DAY,  "Sleep days",               MD_Menu::MNU_INPUT,       MENU_SLEEP_DAY },
 };
 
 // Input Items ---------
@@ -61,9 +61,9 @@ const PROGMEM MD_Menu::mnuInput_t menuInputs[] =
   { MENU_FRONT_NEAR, "Front near",     MD_Menu::INP_INT,   menuSetMaximumY,  3,   1, 0,    180, 0, 10, nullptr },
 
   // Auto Timer
-  { 30,               "Restart sleep time",  MD_Menu::INP_RUN,   menuRestartSleepTimer, 0,   0,  0,  0,   0,  10, nullptr },
-  { MENU_RUN_SEC,     "Run Seconds",          MD_Menu::INP_INT,   menuSetRunDuration,    2,   1,  0,  59,  0,  10, nullptr },
-  { MENU_RUN_MIN,     "Run Minutes",          MD_Menu::INP_INT,   menuSetRunDuration,    2,   1,  0,  15,  0,  10, nullptr },
+  { 30,               "Restart sleep",  MD_Menu::INP_RUN,   menuRestartSleepTimer, 0,   0,  0,  0,   0,  10, nullptr },
+  { MENU_RUN_SEC,     "Run Seconds",          MD_Menu::INP_INT,   menuSetRunDuration,    2,   0,  0,  59,  0,  10, nullptr },
+  { MENU_RUN_MIN,     "Run Minutes",          MD_Menu::INP_INT,   menuSetRunDuration,    2,   0,  0,  30,  0,  10, nullptr },
   { MENU_SLEEP_MIN,   "Sleep Minutes",        MD_Menu::INP_INT,   menuSetRunInterval,    2,   0,  0,  60,  0,  10, nullptr },
   { MENU_SLEEP_HOUR,  "Sleep Hours",          MD_Menu::INP_INT,   menuSetRunInterval,    2,   0,  0,  24,  0,  10, nullptr },
   { MENU_SLEEP_DAY,   "Sleep Days",           MD_Menu::INP_INT,   menuSetRunInterval,    2,   0,  0,  30,  0,  10, nullptr },

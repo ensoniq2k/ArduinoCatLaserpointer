@@ -137,6 +137,14 @@ void laserMove() {
 }
 
 void startRun() {
+  Serial.println(F("Starting run"));
+
+  randomSeed(analogRead(0));
+
+  if(RUNTIME_SECONDS < 1) {
+    return;
+  }
+
   timer.reset(laserWakeUpTimerId);
   startLaser();
 
@@ -145,6 +153,8 @@ void startRun() {
 }
 
 void endRun() {
+  Serial.println(F("Ending run"));
+
   timer.cancel(laserMoveTimerId);
   laserMoveTimerId = 0;
   timer.cancel(laserRuntimeUpTimerId);

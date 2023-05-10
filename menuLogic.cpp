@@ -31,7 +31,7 @@ MD_Menu::value_t *menuSetRunDuration(MD_Menu::mnuId_t id, MD_Menu::requestType_t
       RUNTIME_SECONDS = (RUNTIME_SECONDS / 60 * 60) + menuValueBuffer.value;    
     }
     if(id == MENU_RUN_MIN) {
-      menuValueBuffer.value = (RUNTIME_SECONDS % 60) + menuValueBuffer.value * 60;
+      RUNTIME_SECONDS = (RUNTIME_SECONDS % 60) + menuValueBuffer.value * 60;
     }
 
     break;   
@@ -74,8 +74,8 @@ MD_Menu::value_t *menuSetRunInterval(MD_Menu::mnuId_t id, MD_Menu::requestType_t
         SLEEPTIME_MINUTES = min + (menuValueBuffer.value * MINUTES_PER_HOUR) + (day * MINUTES_PER_DAY);
       }
       if(id == MENU_SLEEP_DAY) {
-      }
         SLEEPTIME_MINUTES = min + (hour * MINUTES_PER_HOUR) + (menuValueBuffer.value * MINUTES_PER_DAY);
+      }
       
       // Sleep time must be longer than runtime to prevent unexpected behaviour
       if(SLEEPTIME_MINUTES < RUNTIME_SECONDS / SECONDS_PER_MINUTE + 1) {
