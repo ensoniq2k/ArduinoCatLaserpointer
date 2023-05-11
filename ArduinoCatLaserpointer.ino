@@ -78,9 +78,9 @@ void setup() {
   ButtonEscape.attachClick([] { menuNavAction = MD_Menu::NAV_ESC; });
 
   restoreSettingsFromEeprom();
-  initMenu();
-
+  updateSettings();
   restartSleepTimer();
+  initMenu();
 }
 
 void loop() {
@@ -308,8 +308,6 @@ void restoreSettingsFromEeprom() {
   if(readUInt8 != EMPTY_EEPROM_1BYTE) LASER_BRIGHTNESS = readUInt8;
 
   EEPROM.end();
-
-  updateSettings();
 }
 
 // Recalculation after reading from EEPROM or changing settings
@@ -323,7 +321,10 @@ void updateSettings() {
 
 void restartSleepTimer() {
   timer.cancel(laserWakeUpTimerId);
-  laserWakeUpTimerId = timer.setInterval(laserWakeUpLambda, MINUTES_TO_MILLIS(SLEEPTIME_MINUTES));
+
+  if(SLEEPTIME_MINUTES > 0) {
+    laserWakeUpTimerId = timer.setInterval(laserWakeUpLambda, MINUTES_TO_MILLIS(SLEEPTIME_MINUTES));
+  }
 }
 
 uint32_t getNextRunSeconds() {

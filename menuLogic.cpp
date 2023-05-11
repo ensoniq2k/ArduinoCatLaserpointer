@@ -76,7 +76,7 @@ MD_Menu::value_t *menuSetRunInterval(MD_Menu::mnuId_t id, MD_Menu::requestType_t
       }
       
       // Sleep time must be longer than runtime to prevent unexpected behaviour
-      if(SLEEPTIME_MINUTES < RUNTIME_SECONDS / SECONDS_PER_MINUTE + 1) {
+      if(SLEEPTIME_MINUTES > 0 && SLEEPTIME_MINUTES < RUNTIME_SECONDS / SECONDS_PER_MINUTE + 1) {
         // Just to be safe we set it twice as long as the runtime
         SLEEPTIME_MINUTES = (RUNTIME_SECONDS / SECONDS_PER_MINUTE) * 2;
       }
@@ -272,6 +272,11 @@ MD_Menu::value_t *menuShowNextRun(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
       break;
 
     case MD_Menu::REQ_SET:
+      if(SLEEPTIME_MINUTES < 1) {
+        displayToast(F("No timer set"), 1500, false); 
+        break;
+      }
+
       uint16_t remainSeconds = getNextRunSeconds();
       uint8_t day, hour, min;
       
