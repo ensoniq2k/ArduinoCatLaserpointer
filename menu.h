@@ -21,6 +21,9 @@
 #define MENU_SLEEP_HOUR 35
 #define MENU_SLEEP_DAY 36
 
+#define MENU_XY_STEP_FACTOR 5
+#define MENU_XY_MAX (180 / MENU_XY_STEP_FACTOR)
+
 
 enum class Fonts : uint8_t {
   Adafruit5x7     = 0,
