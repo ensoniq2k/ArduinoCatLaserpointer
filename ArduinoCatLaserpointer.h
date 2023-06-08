@@ -14,10 +14,10 @@
 #define BUTTON_ENTER 3
 #define BUTTON_ESCAPE 4
 
-#define X_SERVO_MOSFET_PIN 8 
-#define Y_SERVO_MOSFET_PIN 7
-#define X_SERVO_PIN 10
-#define Y_SERVO_PIN 9
+#define X_SERVO_MOSFET_PIN 7
+#define Y_SERVO_MOSFET_PIN 8
+#define X_SERVO_PIN 9
+#define Y_SERVO_PIN 10
 #define LASER_PIN 11
 
 #define MIDPOINT(min, max) (min + max) / 2
@@ -62,7 +62,6 @@ void startLaser();
 void stopLaser();
 void startRun();
 void endRun();
-void laufen();
 void sweep(int AFrom, int ATo, int AHorizontalDirection, bool ABack);
 void moveWithSimulatedShaking(int AFrom, int ATo, int AHorizontalDirection);
 void sleep();
@@ -70,6 +69,7 @@ void randomMoves();
 void moveAxis(int& interval, int& pos, int& tunraround, int axisMin, int axisMax);
 void triggerLaser();
 void laserMove();
+void laserShowSquareBoundaries();
 void writeSettingsToEeprom();
 void updateSettings();
 void restartSleepTimer();

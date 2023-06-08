@@ -5,7 +5,7 @@
 const PROGMEM MD_Menu::mnuHeader_t menuHeader[] =
 {
   { 10, "Main Menu",            10, 15, 0 },
-  { 20, "Laser limits",         20, 23, 0 },
+  { 20, "Laser limits",         20, 24, 0 },
   { 30, "Timer Settings",       30, 36, 0 },
 };
 
@@ -25,13 +25,14 @@ const PROGMEM MD_Menu::mnuItem_t menuItems[] =
   
   
   // X/Y Limits submenu
-  { MENU_SIDE_LEFT,  "Side left",                MD_Menu::MNU_INPUT_FB,    MENU_SIDE_LEFT },
-  { MENU_SIDE_RIGHT, "Side right",               MD_Menu::MNU_INPUT_FB,  MENU_SIDE_RIGHT },
-  { MENU_FRONT_FAR,  "Front far",                MD_Menu::MNU_INPUT_FB,    MENU_FRONT_FAR },
-  { MENU_FRONT_NEAR, "Front near",               MD_Menu::MNU_INPUT_FB,  MENU_FRONT_NEAR },
+  { MENU_SIDE_LEFT,             "Side left",          MD_Menu::MNU_INPUT_FB,   MENU_SIDE_LEFT },
+  { MENU_SIDE_RIGHT,            "Side right",         MD_Menu::MNU_INPUT_FB,   MENU_SIDE_RIGHT },
+  { MENU_FRONT_FAR,             "Front far",          MD_Menu::MNU_INPUT_FB,   MENU_FRONT_FAR },
+  { MENU_FRONT_NEAR,            "Front near",         MD_Menu::MNU_INPUT_FB,   MENU_FRONT_NEAR },
+  { MENU_LASER_SHOW_BOUNDARIES, "Show boundaries",    MD_Menu::MNU_INPUT,      MENU_LASER_SHOW_BOUNDARIES },
 
   // Auto Timer   
-  { 30,              "Next run?",         MD_Menu::MNU_INPUT,        30 },
+  { 30,              "Next run?",          MD_Menu::MNU_INPUT,        30 },
   { 31,              "Restart sleep",      MD_Menu::MNU_INPUT,       31 },
   { MENU_RUN_SEC,    "Run seconds",        MD_Menu::MNU_INPUT,       MENU_RUN_SEC },
   { MENU_RUN_MIN,    "Run minutes",        MD_Menu::MNU_INPUT,       MENU_RUN_MIN },
@@ -56,10 +57,11 @@ const PROGMEM MD_Menu::mnuInput_t menuInputs[] =
   { 14, "Brightness",       MD_Menu::INP_INT,     menuLaserBrightness,  2,   1, 0,    25, 0, 10, nullptr },
 
   // X/Y Limits     
-  { MENU_SIDE_LEFT,  "Side left",      MD_Menu::INP_INT,   menuSetMinimumX,  3,   1, 0,    MENU_XY_MAX, 0, 10, nullptr },
-  { MENU_SIDE_RIGHT, "Side right",     MD_Menu::INP_INT,   menuSetMaximumX,  3,   1, 0,    MENU_XY_MAX, 0, 10, nullptr },
-  { MENU_FRONT_FAR,  "Front far",      MD_Menu::INP_INT,   menuSetMinimumY,  3,   1, 0,    MENU_XY_MAX, 0, 10, nullptr },
-  { MENU_FRONT_NEAR, "Front near",     MD_Menu::INP_INT,   menuSetMaximumY,  3,   1, 0,    MENU_XY_MAX, 0, 10, nullptr },
+  { MENU_SIDE_LEFT,             "Side left",          MD_Menu::INP_INT,   menuSetMinimumX,          3,   1, 0,    MENU_XY_MAX,  0, 10, nullptr },
+  { MENU_SIDE_RIGHT,            "Side right",         MD_Menu::INP_INT,   menuSetMaximumX,          3,   1, 0,    MENU_XY_MAX,  0, 10, nullptr },
+  { MENU_FRONT_FAR,             "Front far",          MD_Menu::INP_INT,   menuSetMinimumY,          3,   1, 0,    MENU_XY_MAX,  0, 10, nullptr },
+  { MENU_FRONT_NEAR,            "Front near",         MD_Menu::INP_INT,   menuSetMaximumY,          3,   1, 0,    MENU_XY_MAX,  0, 10, nullptr },
+  { MENU_LASER_SHOW_BOUNDARIES, "Show boundaries",    MD_Menu::INP_RUN,   menuLaserShowBoundaries,  0,   0, 0,    0,            0, 10, nullptr },
 
   // Auto Timer
   { 30,               "Next run?",            MD_Menu::INP_RUN,   menuShowNextRun,       0,   0,  0,  0,   0,  10, nullptr },

@@ -270,6 +270,36 @@ void triggerLaser() {
   }
 }
 
+void laserShowSquareBoundaries() {
+  startLaser();
+
+  xAxis.write(X_MIN);
+  yAxis.write(Y_MIN);
+  uint8_t delayMs = 25;
+
+  for(short x = X_MIN; x < X_MAX; x++) {
+    xAxis.write(x);
+    delay(delayMs);
+  }
+
+  for(short y = Y_MIN; y < Y_MAX; y++) {
+    yAxis.write(y);
+    delay(delayMs);
+  }
+
+  for(short x = X_MAX; x > X_MIN; x--) {
+    xAxis.write(x);
+    delay(delayMs);
+  }
+
+  for(short y = Y_MAX; y > Y_MIN; y--) {
+    yAxis.write(y);
+    delay(delayMs);
+  }
+
+  stopLaser();
+}
+
 void writeSettingsToEeprom() {
   EEPROM.begin();
 

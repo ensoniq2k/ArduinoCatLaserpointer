@@ -264,6 +264,17 @@ MD_Menu::value_t *menuCenterServos(MD_Menu::mnuId_t id, MD_Menu::requestType_t r
 }
 
 
+MD_Menu::value_t *menuLaserShowBoundaries(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
+  switch(reqType) {
+    case MD_Menu::REQ_GET:
+      return nullptr; // nullptr means no confirmation required
+      break;
+
+    case MD_Menu::REQ_SET:
+      laserShowSquareBoundaries();
+      break;    
+  }
+}
 
 MD_Menu::value_t *menuShowNextRun(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
   switch(reqType) {
