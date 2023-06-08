@@ -20,8 +20,8 @@ uint16_t SLEEPTIME_MINUTES = 180;
 #define MIN_DISTANCE 15
 
 // Minimum and maximum wait time in milliseconds between each servo movement step
-const unsigned short MIN_DELAY = 20;  
-const unsigned short MAX_DELAY = 50;
+const unsigned short MIN_STEP_DELAY = 20;  
+const unsigned short MAX_STEP_DELAY = 50;
 
 
 // Minimum and maximum time the laser can be turned off to confuse the cat
@@ -29,8 +29,8 @@ const uint8_t MIN_LASER_OFF_TICKS = 5;
 const uint8_t MAX_LASER_OFF_TICKS = 50;
 
 // How many ticks have to pass until the laser is moved one step
-const uint8_t MIN_AXIS_MOVE_DECISSION_TICKS = 20;
-const uint8_t MAX_AXIS_MOVE_DECISSION_TICKS = 100;
+const uint8_t MIN_MOVE_DISTANCE = 20;
+const uint8_t MAX_MOVE_DISTANCE = 100;
 
 short xInterval = 1;
 short yInterval = 1;
@@ -137,7 +137,7 @@ void laserMove() {
   randomMoves();
 
   // 
-  unsigned short randomDelay = random(MIN_DELAY, MAX_DELAY);
+  unsigned short randomDelay = random(MIN_STEP_DELAY, MAX_STEP_DELAY);
   laserMoveTimerId = timer.setTimeout(laserMoveLambda, randomDelay);
 }
 
@@ -212,7 +212,7 @@ void chooseNewRandomMovementPattern() {
       movementType = mtNone;
 
     // How long the distance of ticks the movement should last
-    movementTypeTicks = random(MIN_AXIS_MOVE_DECISSION_TICKS, MAX_AXIS_MOVE_DECISSION_TICKS);
+    movementTypeTicks = random(MIN_MOVE_DISTANCE, MAX_MOVE_DISTANCE);
 }
 
 // Moves the laser in straight lines
@@ -275,7 +275,7 @@ void laserShowSquareBoundaries() {
 
   xAxis.write(X_MIN);
   yAxis.write(Y_MIN);
-  uint8_t delayMs = 25;
+  uint8_t delayMs = 50;
 
   for(short x = X_MIN; x < X_MAX; x++) {
     xAxis.write(x);
