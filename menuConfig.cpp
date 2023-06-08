@@ -56,10 +56,10 @@ const PROGMEM MD_Menu::mnuInput_t menuInputs[] =
   { 14, "Brightness",       MD_Menu::INP_INT,     menuLaserBrightness,  2,   1, 0,    25, 0, 10, nullptr },
 
   // X/Y Limits     
-  { MENU_SIDE_LEFT,  "Side left",      MD_Menu::INP_INT,   menuSetMinimumX,  3,   1, 0,    180, 0, 10, nullptr },
-  { MENU_SIDE_RIGHT, "Side right",     MD_Menu::INP_INT,   menuSetMaximumX,  3,   1, 0,    180, 0, 10, nullptr },
-  { MENU_FRONT_FAR,  "Front far",      MD_Menu::INP_INT,   menuSetMinimumY,  3,   1, 0,    180, 0, 10, nullptr },
-  { MENU_FRONT_NEAR, "Front near",     MD_Menu::INP_INT,   menuSetMaximumY,  3,   1, 0,    180, 0, 10, nullptr },
+  { MENU_SIDE_LEFT,  "Side left",      MD_Menu::INP_INT,   menuSetMinimumX,  3,   1, 0,    MENU_XY_MAX, 0, 10, nullptr },
+  { MENU_SIDE_RIGHT, "Side right",     MD_Menu::INP_INT,   menuSetMaximumX,  3,   1, 0,    MENU_XY_MAX, 0, 10, nullptr },
+  { MENU_FRONT_FAR,  "Front far",      MD_Menu::INP_INT,   menuSetMinimumY,  3,   1, 0,    MENU_XY_MAX, 0, 10, nullptr },
+  { MENU_FRONT_NEAR, "Front near",     MD_Menu::INP_INT,   menuSetMaximumY,  3,   1, 0,    MENU_XY_MAX, 0, 10, nullptr },
 
   // Auto Timer
   { 30,               "Next run?",            MD_Menu::INP_RUN,   menuShowNextRun,       0,   0,  0,  0,   0,  10, nullptr },

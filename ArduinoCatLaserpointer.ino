@@ -9,10 +9,10 @@ OneButton ButtonEscape = OneButton(BUTTON_ESCAPE, true, true);
 
 uint8_t LASER_BRIGHTNESS = 100;
 
-uint8_t X_MIN = 100;
-uint8_t X_MAX = 145;
-uint8_t Y_MIN = 100;
-uint8_t Y_MAX = 145;
+uint8_t X_MIN = 60;
+uint8_t X_MAX = 120;
+uint8_t Y_MIN = 60;
+uint8_t Y_MAX = 120;
 
 uint16_t RUNTIME_SECONDS = 180;
 uint16_t SLEEPTIME_MINUTES = 180;
@@ -69,7 +69,11 @@ void setup() {
   pinMode(BUTTON_ENTER, INPUT_PULLUP);
   pinMode(BUTTON_ESCAPE, INPUT_PULLUP);
 
+  pinMode(X_SERVO_MOSFET_PIN, OUTPUT);
+  pinMode(Y_SERVO_MOSFET_PIN, OUTPUT);
   pinMode(LASER_PIN, OUTPUT);
+  digitalWrite(X_SERVO_MOSFET_PIN, LOW);
+  digitalWrite(Y_SERVO_MOSFET_PIN, LOW);
   analogWrite(LASER_PIN, LOW);
 
   ButtonLeft.attachClick([] { menuNavAction = MD_Menu::NAV_DEC; });
@@ -78,6 +82,7 @@ void setup() {
   ButtonEscape.attachClick([] { menuNavAction = MD_Menu::NAV_ESC; });
 
   restoreSettingsFromEeprom();
+
   updateSettings();
   restartSleepTimer();
   initMenu();
@@ -161,12 +166,16 @@ void endRun() {
 
 void startLaser() {
   analogWrite(LASER_PIN, LASER_BRIGHTNESS);
+  digitalWrite(X_SERVO_MOSFET_PIN, HIGH);
+  digitalWrite(Y_SERVO_MOSFET_PIN, HIGH);
   xAxis.attach(X_SERVO_PIN);
   yAxis.attach(Y_SERVO_PIN);
 }
 
 void stopLaser() {
   analogWrite(LASER_PIN, LOW);
+  digitalWrite(X_SERVO_MOSFET_PIN, LOW);
+  digitalWrite(Y_SERVO_MOSFET_PIN, LOW);
   xAxis.detach();
   yAxis.detach();
 }

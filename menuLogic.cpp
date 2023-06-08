@@ -141,19 +141,19 @@ MD_Menu::value_t *menuSetMinimumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
   switch(reqType) {
     case MD_Menu::REQ_GET:
       endRun();
-      menuValueBuffer.value = X_MIN;
+      menuValueBuffer.value = X_MIN / MENU_XY_STEP_FACTOR;
       startLaser();
       xAxis.write(X_MIN);
       yAxis.write(MIDPOINT(Y_MIN, Y_MAX));
       break;
 
     case MD_Menu::REQ_SET:
-      X_MIN = menuValueBuffer.value;    
+      X_MIN = menuValueBuffer.value * MENU_XY_STEP_FACTOR;    
       stopLaser();
       break;    
     
     case MD_Menu::REQ_UPD:
-      xAxis.write(menuValueBuffer.value);
+      xAxis.write(menuValueBuffer.value * MENU_XY_STEP_FACTOR);
       break;  
 
     case MD_Menu::REQ_ESC:
@@ -168,19 +168,19 @@ MD_Menu::value_t *menuSetMaximumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
   switch(reqType) {
     case MD_Menu::REQ_GET:
       endRun();
-      menuValueBuffer.value = X_MAX;
+      menuValueBuffer.value = X_MAX / MENU_XY_STEP_FACTOR;
       startLaser();
       xAxis.write(X_MAX);
       yAxis.write(MIDPOINT(Y_MIN, Y_MAX));
       break;
 
     case MD_Menu::REQ_SET:
-      X_MAX = menuValueBuffer.value;    
+      X_MAX = menuValueBuffer.value * MENU_XY_STEP_FACTOR;    
       stopLaser();
       break;    
     
     case MD_Menu::REQ_UPD:
-      xAxis.write(menuValueBuffer.value);
+      xAxis.write(menuValueBuffer.value * MENU_XY_STEP_FACTOR);
       break;
 
     case MD_Menu::REQ_ESC:
@@ -195,19 +195,19 @@ MD_Menu::value_t *menuSetMinimumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
   switch(reqType) {
     case MD_Menu::REQ_GET:
       endRun();
-      menuValueBuffer.value = Y_MIN;
+      menuValueBuffer.value = Y_MIN / MENU_XY_STEP_FACTOR;
       startLaser();
       xAxis.write(MIDPOINT(X_MIN, X_MAX));
       yAxis.write(Y_MIN);
       break;
 
     case MD_Menu::REQ_SET:
-      Y_MIN = menuValueBuffer.value;    
+      Y_MIN = menuValueBuffer.value * MENU_XY_STEP_FACTOR;    
       stopLaser();
       break;    
     
     case MD_Menu::REQ_UPD:
-      yAxis.write(menuValueBuffer.value);
+      yAxis.write(menuValueBuffer.value * MENU_XY_STEP_FACTOR);
       break;   
 
     case MD_Menu::REQ_ESC:
@@ -222,19 +222,19 @@ MD_Menu::value_t *menuSetMaximumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
     switch(reqType) {
     case MD_Menu::REQ_GET:
       endRun();
-      menuValueBuffer.value = Y_MAX;
+      menuValueBuffer.value = Y_MAX / MENU_XY_STEP_FACTOR;
       startLaser();
       xAxis.write(MIDPOINT(X_MIN, X_MAX));
       yAxis.write(Y_MAX);
       break;
 
     case MD_Menu::REQ_SET:
-      Y_MAX = menuValueBuffer.value;    
+      Y_MAX = menuValueBuffer.value * MENU_XY_STEP_FACTOR;    
       stopLaser();
       break;    
     
     case MD_Menu::REQ_UPD:
-      yAxis.write(menuValueBuffer.value);
+      yAxis.write(menuValueBuffer.value * MENU_XY_STEP_FACTOR);
       break;  
       
     case MD_Menu::REQ_ESC:

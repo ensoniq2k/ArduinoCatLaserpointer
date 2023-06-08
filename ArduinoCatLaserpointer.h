@@ -8,14 +8,17 @@
 #include "menu.h"
 #include "eepromStore.h"
 
-#define BUTTON_LEFT 7
-#define BUTTON_RIGHT 8
-#define BUTTON_ENTER 9
-#define BUTTON_ESCAPE 10
 
-#define X_SERVO_PIN 5
-#define Y_SERVO_PIN 6
-#define LASER_PIN 3
+#define BUTTON_LEFT 5
+#define BUTTON_RIGHT 6
+#define BUTTON_ENTER 3
+#define BUTTON_ESCAPE 4
+
+#define X_SERVO_MOSFET_PIN 8 
+#define Y_SERVO_MOSFET_PIN 7
+#define X_SERVO_PIN 10
+#define Y_SERVO_PIN 9
+#define LASER_PIN 11
 
 #define MIDPOINT(min, max) (min + max) / 2
 #define SECONDS_TO_MILLIS(sec) (static_cast<unsigned long>(sec) * 1000UL)
