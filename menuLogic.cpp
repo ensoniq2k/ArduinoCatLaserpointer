@@ -103,7 +103,7 @@ MD_Menu::value_t *menuLaserBrightness(MD_Menu::mnuId_t id, MD_Menu::requestType_
       break;   
 
     case MD_Menu::REQ_UPD:
-      analogWrite(LASER_PIN, menuValueBuffer.value);
+      analogWrite(LASER_PIN, menuValueBuffer.value * 10);
       break;
 
     case MD_Menu::REQ_ESC:
