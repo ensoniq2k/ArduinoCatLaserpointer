@@ -17,20 +17,20 @@ uint8_t Y_MAX = 120;
 uint16_t RUNTIME_SECONDS = 180;
 uint16_t SLEEPTIME_MINUTES = 180;
 
-#define MIN_DISTANCE 15
-
 // Minimum and maximum wait time in milliseconds between each servo movement step
-const unsigned short MIN_STEP_DELAY = 20;  
-const unsigned short MAX_STEP_DELAY = 50;
-
+uint8_t MIN_STEP_DELAY = 20;  
+uint8_t MAX_STEP_DELAY = 50;
 
 // Minimum and maximum time the laser can be turned off to confuse the cat
 const uint8_t MIN_LASER_OFF_TICKS = 5;    
 const uint8_t MAX_LASER_OFF_TICKS = 50;
 
-// How many ticks have to pass until the laser is moved one step
+// How many steps a move consists of. 
+// At boundaries the direction is inverted and movement continued
 const uint8_t MIN_MOVE_DISTANCE = 20;
 const uint8_t MAX_MOVE_DISTANCE = 100;
+
+bool wakeUpTimerActive = false;
 
 short xInterval = 1;
 short yInterval = 1;
@@ -234,24 +234,6 @@ void moveAxis(short& interval, uint8_t& pos, uint8_t& tunraround, uint8_t axisMi
   }
 }
 
-// Moves the laser in circles
-void moveInCircle() {
-  double angle = 2 * PI / 90;
-  unsigned short x, y;
-  unsigned short radius = 20;
-
-
-  for (int i = 0; i <= 90; i++) {
-    x = cos(i * angle) * radius + xPos;
-    y = sin(i * angle) * radius + yPos;
-
-    xAxis.write(x);
-    yAxis.write(y);
-    delay(20);
-  }
-}
-
-
 // Shuts off the laser for brief moments to confuse the cat
 void triggerLaser() {
   if (laserOffTicks == 0) {
@@ -307,10 +289,11 @@ void writeSettingsToEeprom() {
     EEPROM.put(ADRESS_X_MAX, X_MAX);
     EEPROM.put(ADRESS_Y_MIN, Y_MIN);
     EEPROM.put(ADRESS_Y_MAX, Y_MAX);
-    EEPROM.put(ADRESS_FONT_TYPE, static_cast<uint8_t>(currentFont));
+    //EEPROM.put(ADRESS_FONT_TYPE, static_cast<uint8_t>(currentFont));
     EEPROM.put(ADRESS_RUNTIME, RUNTIME_SECONDS);
     EEPROM.put(ADRESS_SLEEPTIME, SLEEPTIME_MINUTES);
     EEPROM.put(ADRESS_LASER_BRIGHTNESS, LASER_BRIGHTNESS);
+    EEPROM.put(ADRESS_WAKEUP_TIMER_ACTIVE, wakeUpTimerActive);
 
   EEPROM.end();
 }
@@ -334,8 +317,8 @@ void restoreSettingsFromEeprom() {
   EEPROM.get(ADRESS_Y_MAX, readUInt8);
   if(readUInt8 != EMPTY_EEPROM_1BYTE) Y_MAX = readUInt8;
 
-  EEPROM.get(ADRESS_FONT_TYPE, readUInt8);
-  if(readUInt8 != EMPTY_EEPROM_1BYTE) currentFont = static_cast<Fonts>(readUInt8);
+  //EEPROM.get(ADRESS_FONT_TYPE, readUInt8);
+  //if(readUInt8 != EMPTY_EEPROM_1BYTE) currentFont = static_cast<Fonts>(readUInt8);
 
   EEPROM.get(ADRESS_RUNTIME, readUInt16);
   if(readUInt16 != EMPTY_EEPROM_2BYTE) RUNTIME_SECONDS = readUInt16;
@@ -345,6 +328,9 @@ void restoreSettingsFromEeprom() {
 
   EEPROM.get(ADRESS_LASER_BRIGHTNESS, readUInt8);
   if(readUInt8 != EMPTY_EEPROM_1BYTE) LASER_BRIGHTNESS = readUInt8;
+
+  EEPROM.get(ADRESS_WAKEUP_TIMER_ACTIVE, readUInt8);
+  if(readUInt8 != EMPTY_EEPROM_1BYTE) wakeUpTimerActive = readUInt8;
 
   EEPROM.end();
 }
@@ -361,7 +347,7 @@ void updateSettings() {
 void restartSleepTimer() {
   timer.cancel(laserWakeUpTimerId);
 
-  if(SLEEPTIME_MINUTES > 0) {
+  if(wakeUpTimerActive && SLEEPTIME_MINUTES > 0) {
     laserWakeUpTimerId = timer.setInterval(laserWakeUpLambda, MINUTES_TO_MILLIS(SLEEPTIME_MINUTES));
   }
 }

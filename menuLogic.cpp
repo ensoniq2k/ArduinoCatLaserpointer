@@ -18,22 +18,23 @@ MD_Menu::value_t *menuRestartSleepTimer(MD_Menu::mnuId_t id, MD_Menu::requestTyp
 MD_Menu::value_t *menuSetRunDuration(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
   switch(reqType) {
   case MD_Menu::REQ_GET:
-    if(id == MENU_RUN_SEC) {
+    if(id == MENU_TIMER_RUN_SEC) {
       menuValueBuffer.value = RUNTIME_SECONDS % 60;
     }
-    if(id == MENU_RUN_MIN) {
+    if(id == MENU_TIMER_RUN_MIN) {
       menuValueBuffer.value = RUNTIME_SECONDS / 60;
     }
     break;
 
   case MD_Menu::REQ_SET:
-    if(id == MENU_RUN_SEC) {
+    if(id == MENU_TIMER_RUN_SEC) {
       RUNTIME_SECONDS = (RUNTIME_SECONDS / 60 * 60) + menuValueBuffer.value;    
     }
-    if(id == MENU_RUN_MIN) {
+    if(id == MENU_TIMER_RUN_MIN) {
       RUNTIME_SECONDS = (RUNTIME_SECONDS % 60) + menuValueBuffer.value * 60;
     }
 
+    writeSettingsToEeprom();
     break;   
   }
 
@@ -52,63 +53,38 @@ MD_Menu::value_t *menuSetRunInterval(MD_Menu::mnuId_t id, MD_Menu::requestType_t
 
   switch(reqType) {
   case MD_Menu::REQ_GET:
-      if(id == MENU_SLEEP_MIN) {
-        menuValueBuffer.value = remainMin;
-      }
-      if(id == MENU_SLEEP_HOUR) {
-        menuValueBuffer.value = hour;
-      }
-      if(id == MENU_SLEEP_DAY) {
-        menuValueBuffer.value = day;
-      }
-
+    if(id == MENU_TIMER_SLEEP_MIN) {
+      menuValueBuffer.value = remainMin;
+    }
+    if(id == MENU_TIMER_SLEEP_HOUR) {
+      menuValueBuffer.value = hour;
+    }
+    if(id == MENU_TIMER_SLEEP_DAY) {
+      menuValueBuffer.value = day;
+    }
     break;
 
   case MD_Menu::REQ_SET:
-      if(id == MENU_SLEEP_MIN) {
-        SLEEPTIME_MINUTES = menuValueBuffer.value + (hour * MINUTES_PER_HOUR) + (day * MINUTES_PER_DAY);
-      }
-      if(id == MENU_SLEEP_HOUR) {
-        SLEEPTIME_MINUTES = remainMin + (menuValueBuffer.value * MINUTES_PER_HOUR) + (day * MINUTES_PER_DAY);
-      }
-      if(id == MENU_SLEEP_DAY) {
-        SLEEPTIME_MINUTES = remainMin + (hour * MINUTES_PER_HOUR) + (menuValueBuffer.value * MINUTES_PER_DAY);
-      }
-      
-      // Sleep time must be longer than runtime to prevent unexpected behaviour
-      if(SLEEPTIME_MINUTES > 0 && SLEEPTIME_MINUTES < RUNTIME_SECONDS / SECONDS_PER_MINUTE + 1) {
-        // Just to be safe we set it twice as long as the runtime
-        SLEEPTIME_MINUTES = (RUNTIME_SECONDS / SECONDS_PER_MINUTE) * 2;
-      }
+    if(id == MENU_TIMER_SLEEP_MIN) {
+      SLEEPTIME_MINUTES = menuValueBuffer.value + (hour * MINUTES_PER_HOUR) + (day * MINUTES_PER_DAY);
+    }
+    if(id == MENU_TIMER_SLEEP_HOUR) {
+      SLEEPTIME_MINUTES = remainMin + (menuValueBuffer.value * MINUTES_PER_HOUR) + (day * MINUTES_PER_DAY);
+    }
+    if(id == MENU_TIMER_SLEEP_DAY) {
+      SLEEPTIME_MINUTES = remainMin + (hour * MINUTES_PER_HOUR) + (menuValueBuffer.value * MINUTES_PER_DAY);
+    }
+    
+    // Sleep time must be longer than runtime to prevent unexpected behaviour
+    if(SLEEPTIME_MINUTES > 0 && SLEEPTIME_MINUTES < RUNTIME_SECONDS / SECONDS_PER_MINUTE + 1) {
+      // Just to be safe we set it twice as long as the runtime
+      SLEEPTIME_MINUTES = (RUNTIME_SECONDS / SECONDS_PER_MINUTE) * 2;
+    }
 
-      restartSleepTimer();
-
+    writeSettingsToEeprom();
+    restartSleepTimer();
     break;   
   } 
-
-  return &menuValueBuffer;
-}
-
-MD_Menu::value_t *menuSetFont(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
-    switch(reqType) {
-    case MD_Menu::REQ_GET:
-      menuValueBuffer.value = static_cast<int32_t>(currentFont);
-      break;
-
-    case MD_Menu::REQ_SET:
-      currentFont = static_cast<Fonts>(menuValueBuffer.value);    
-      displaySetFont(currentFont);
-      break;    
-    
-    case MD_Menu::REQ_UPD:
-      displaySetFont(static_cast<Fonts>(menuValueBuffer.value));
-      displayShowCurrentText();
-      break;  
-      
-    case MD_Menu::REQ_ESC:
-      displaySetFont(currentFont);
-      break;
-  }
 
   return &menuValueBuffer;
 }
@@ -123,6 +99,7 @@ MD_Menu::value_t *menuLaserBrightness(MD_Menu::mnuId_t id, MD_Menu::requestType_
     case MD_Menu::REQ_SET:
       LASER_BRIGHTNESS = menuValueBuffer.value * 10;
       analogWrite(LASER_PIN, LOW);
+      writeSettingsToEeprom();
       break;   
 
     case MD_Menu::REQ_UPD:
@@ -137,23 +114,24 @@ MD_Menu::value_t *menuLaserBrightness(MD_Menu::mnuId_t id, MD_Menu::requestType_
   return &menuValueBuffer;
 }
 
-MD_Menu::value_t *menuSetMinimumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
+MD_Menu::value_t *menuSetMinimumSide(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
   switch(reqType) {
     case MD_Menu::REQ_GET:
       endRun();
-      menuValueBuffer.value = X_MIN / MENU_XY_STEP_FACTOR;
+      menuValueBuffer.value = X_MIN / MENU_LASER_LIMIT_STEP_FACTOR;
       startLaser();
       xAxis.write(X_MIN);
       yAxis.write(MIDPOINT(Y_MIN, Y_MAX));
       break;
 
     case MD_Menu::REQ_SET:
-      X_MIN = menuValueBuffer.value * MENU_XY_STEP_FACTOR;    
+      X_MIN = menuValueBuffer.value * MENU_LASER_LIMIT_STEP_FACTOR;    
       stopLaser();
+      writeSettingsToEeprom();
       break;    
     
     case MD_Menu::REQ_UPD:
-      xAxis.write(menuValueBuffer.value * MENU_XY_STEP_FACTOR);
+      xAxis.write(menuValueBuffer.value * MENU_LASER_LIMIT_STEP_FACTOR);
       break;  
 
     case MD_Menu::REQ_ESC:
@@ -164,23 +142,24 @@ MD_Menu::value_t *menuSetMinimumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
   return &menuValueBuffer;
 }
 
-MD_Menu::value_t *menuSetMaximumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
+MD_Menu::value_t *menuSetMaximumSide(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
   switch(reqType) {
     case MD_Menu::REQ_GET:
       endRun();
-      menuValueBuffer.value = X_MAX / MENU_XY_STEP_FACTOR;
+      menuValueBuffer.value = X_MAX / MENU_LASER_LIMIT_STEP_FACTOR;
       startLaser();
       xAxis.write(X_MAX);
       yAxis.write(MIDPOINT(Y_MIN, Y_MAX));
       break;
 
     case MD_Menu::REQ_SET:
-      X_MAX = menuValueBuffer.value * MENU_XY_STEP_FACTOR;    
+      X_MAX = menuValueBuffer.value * MENU_LASER_LIMIT_STEP_FACTOR;    
       stopLaser();
+      writeSettingsToEeprom();
       break;    
     
     case MD_Menu::REQ_UPD:
-      xAxis.write(menuValueBuffer.value * MENU_XY_STEP_FACTOR);
+      xAxis.write(menuValueBuffer.value * MENU_LASER_LIMIT_STEP_FACTOR);
       break;
 
     case MD_Menu::REQ_ESC:
@@ -191,23 +170,24 @@ MD_Menu::value_t *menuSetMaximumX(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
   return &menuValueBuffer;
 }
 
-MD_Menu::value_t *menuSetMinimumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
+MD_Menu::value_t *menuSetMinimumFront(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
   switch(reqType) {
     case MD_Menu::REQ_GET:
       endRun();
-      menuValueBuffer.value = Y_MIN / MENU_XY_STEP_FACTOR;
+      menuValueBuffer.value = Y_MIN / MENU_LASER_LIMIT_STEP_FACTOR;
       startLaser();
       xAxis.write(MIDPOINT(X_MIN, X_MAX));
       yAxis.write(Y_MIN);
       break;
 
     case MD_Menu::REQ_SET:
-      Y_MIN = menuValueBuffer.value * MENU_XY_STEP_FACTOR;    
+      Y_MIN = menuValueBuffer.value * MENU_LASER_LIMIT_STEP_FACTOR;    
       stopLaser();
+      writeSettingsToEeprom();
       break;    
     
     case MD_Menu::REQ_UPD:
-      yAxis.write(menuValueBuffer.value * MENU_XY_STEP_FACTOR);
+      yAxis.write(menuValueBuffer.value * MENU_LASER_LIMIT_STEP_FACTOR);
       break;   
 
     case MD_Menu::REQ_ESC:
@@ -218,28 +198,87 @@ MD_Menu::value_t *menuSetMinimumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
   return &menuValueBuffer;
 }
 
-MD_Menu::value_t *menuSetMaximumY(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
+MD_Menu::value_t *menuSetMaximumFront(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
     switch(reqType) {
     case MD_Menu::REQ_GET:
       endRun();
-      menuValueBuffer.value = Y_MAX / MENU_XY_STEP_FACTOR;
+      menuValueBuffer.value = Y_MAX / MENU_LASER_LIMIT_STEP_FACTOR;
       startLaser();
       xAxis.write(MIDPOINT(X_MIN, X_MAX));
       yAxis.write(Y_MAX);
+      writeSettingsToEeprom();
       break;
 
     case MD_Menu::REQ_SET:
-      Y_MAX = menuValueBuffer.value * MENU_XY_STEP_FACTOR;    
+      Y_MAX = menuValueBuffer.value * MENU_LASER_LIMIT_STEP_FACTOR;    
       stopLaser();
       break;    
     
     case MD_Menu::REQ_UPD:
-      yAxis.write(menuValueBuffer.value * MENU_XY_STEP_FACTOR);
+      yAxis.write(menuValueBuffer.value * MENU_LASER_LIMIT_STEP_FACTOR);
       break;  
       
     case MD_Menu::REQ_ESC:
       stopLaser();
       break;
+  }
+
+  return &menuValueBuffer;
+}
+
+MD_Menu::value_t *menuSetSpeedMin(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
+    switch(reqType) {
+    case MD_Menu::REQ_GET:
+      endRun();
+      menuValueBuffer.value = MIN_STEP_DELAY / 5;
+      break;
+
+    case MD_Menu::REQ_SET:
+      MIN_STEP_DELAY = menuValueBuffer.value * 5;
+      writeSettingsToEeprom();
+      break;    
+
+    case MD_Menu::REQ_UPD:
+      //TODO: Check if lower than MAX_STEP_DELAY
+      break;  
+  }
+
+  return &menuValueBuffer;
+}
+
+MD_Menu::value_t *menuSetSpeedMax(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
+    switch(reqType) {
+    case MD_Menu::REQ_GET:
+      endRun();
+      menuValueBuffer.value = MAX_STEP_DELAY / 5;
+      break;
+
+    case MD_Menu::REQ_SET:
+      MAX_STEP_DELAY = menuValueBuffer.value * 5;
+      writeSettingsToEeprom();
+      break;  
+
+    case MD_Menu::REQ_UPD:
+      //TODO: Check if higher than MIN_STEP_DELAY
+      break;    
+  }
+
+  return &menuValueBuffer;
+}
+
+MD_Menu::value_t *menuSetTimerOnOff(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
+    switch(reqType) {
+    case MD_Menu::REQ_GET:
+      menuValueBuffer.value = wakeUpTimerActive;
+      break;
+
+    case MD_Menu::REQ_SET:
+      if(wakeUpTimerActive != menuValueBuffer.value) {
+        wakeUpTimerActive = menuValueBuffer.value;
+        restartSleepTimer();
+        writeSettingsToEeprom();
+      }
+      break;  
   }
 
   return &menuValueBuffer;
@@ -263,7 +302,6 @@ MD_Menu::value_t *menuCenterServos(MD_Menu::mnuId_t id, MD_Menu::requestType_t r
   }
 }
 
-
 MD_Menu::value_t *menuLaserShowBoundaries(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
   switch(reqType) {
     case MD_Menu::REQ_GET:
@@ -283,7 +321,7 @@ MD_Menu::value_t *menuShowNextRun(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
       break;
 
     case MD_Menu::REQ_SET:
-      if(SLEEPTIME_MINUTES < 1) {
+      if(!wakeUpTimerActive || SLEEPTIME_MINUTES < 1) {
         displayToast(F("No timer set"), 1500, false); 
         break;
       }
@@ -304,19 +342,6 @@ MD_Menu::value_t *menuShowNextRun(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
       sprintf(timeMessage, "Next run in\n%02u Days %02u:%02u:%02u", day, hour, min, remainSeconds);
       displayToast(timeMessage, 1500, false);
     break;
-  }
-}
-
-MD_Menu::value_t *menuSaveConfig(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
-  switch(reqType) {
-    case MD_Menu::REQ_GET:
-      return nullptr; // nullptr means no confirmation required
-      break;
-
-    case MD_Menu::REQ_SET:
-      writeSettingsToEeprom();
-      displayToast(F("Saved!"), 1000, true);
-      break;    
   }
 }
 

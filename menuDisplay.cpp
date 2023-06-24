@@ -2,8 +2,6 @@
 
 SSD1306AsciiWire display;
 
-Fonts currentFont = Fonts::Adafruit5x7;
-
 char textLine1[25];
 char textLine2[25];
 
@@ -18,7 +16,7 @@ bool displayMenu(MD_Menu::userDisplayAction_t action, char *msg)
     Wire.setClock(400000L);
 
     display.begin(&Adafruit128x64, SCREEN_ADDRESS);
-    displaySetFont(currentFont);
+    display.setFont(Arial_bold_14);
     display.clear();
     display.displayRemap(false); // Rotation
     break;
@@ -42,29 +40,6 @@ bool displayMenu(MD_Menu::userDisplayAction_t action, char *msg)
     display.print(textLine2);
     display.clearToEOL();  
     break;
-  }
-}
-
-void displaySetFont(Fonts font) {
-  switch(font) {
-    case Fonts::Adafruit5x7:
-      display.setFont(Adafruit5x7);
-      break;
-    case Fonts::Arial14:
-      display.setFont(Arial14);
-      break;
-    case Fonts::Arial_bold_14:
-      display.setFont(Arial_bold_14);
-      break;
-    case Fonts::Corsiva_12:
-      display.setFont(Corsiva_12);
-      break;
-    case Fonts::Verdana12:
-      display.setFont(Verdana12);
-      break;
-    default:
-      display.setFont(Adafruit5x7);
-      break;
   }
 }
 

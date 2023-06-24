@@ -31,6 +31,8 @@
 #define SECONDS_PER_HOUR   3600
 #define SECONDS_PER_MINUTE 60
 
+#define MIN_DISTANCE 15
+
 extern OneButton ButtonLeft;
 extern OneButton ButtonRight;
 extern OneButton ButtonEnter;
@@ -47,8 +49,13 @@ extern uint8_t X_MAX;
 extern uint8_t Y_MIN;
 extern uint8_t Y_MAX;
 
+extern uint8_t MIN_STEP_DELAY;  
+extern uint8_t MAX_STEP_DELAY;
+
 extern uint16_t RUNTIME_SECONDS;    // Time for each "round" until device goes to sleep
 extern uint16_t SLEEPTIME_MINUTES;  // Time for how long the device sleeps until it reactivates itself
+
+extern bool wakeUpTimerActive;
 
 enum movementTypeEnum { 
   mtNone, 
