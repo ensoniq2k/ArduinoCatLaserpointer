@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <MD_Menu.h>
 
+#include "menuTranslation.h"
 #include "ArduinoCatLaserpointer.h"
 
 #define SCREEN_ADDRESS 0x3C  /// See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
@@ -26,8 +27,8 @@
 #define MENU_LASER_BRIGHTNESS 31
 #define MENU_LASER_SIDE_LEFT 32
 #define MENU_LASER_SIDE_RIGHT 33
-#define MENU_LASER_FRONT_FAR 34
-#define MENU_LASER_FRONT_NEAR 35
+#define MENU_LASER_FRONT_NEAR 34
+#define MENU_LASER_FRONT_FAR 35
 #define MENU_LASER_SPEED_MIN 36
 #define MENU_LASER_SPEED_MAX 37
 #define MENU_LASER_BLANKING_ON_OFF 38
@@ -45,20 +46,9 @@
 #define MENU_TO_FRONT_VALUE(val) LASER_FRONT_HARD_MAX - (val * MENU_LASER_LIMIT_STEP_FACTOR)
 #define MENU_FROM_SIDE_VALUE(val) (val - LASER_SIDE_HARD_MIN) / MENU_LASER_LIMIT_STEP_FACTOR
 #define MENU_FROM_FRONT_VALUE(val) (LASER_FRONT_HARD_MAX - val) / MENU_LASER_LIMIT_STEP_FACTOR
-#define MENU_SPEED_MAX 100
-
-
-enum class Fonts : uint8_t {
-  Adafruit5x7     = 0,
-  Arial14         = 1,
-  Arial_bold_14   = 2,
-  Corsiva_12      = 3,
-  Verdana12       = 4
-};
+#define MENU_SPEED_MAX 15
 
 #define MENU_TIMEOUT 60000 // in milliseconds
-
-extern Fonts currentFont;
 
 extern MD_Menu::userNavAction_t menuNavAction;
 extern MD_Menu mainMenu;
@@ -84,7 +74,6 @@ MD_Menu::value_t *menuSetRunDuration(MD_Menu::mnuId_t id, MD_Menu::requestType_t
 MD_Menu::value_t *menuSetRunInterval(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType);
 
 void initMenu();
-void displaySetFont(Fonts font);
 void displayShowCurrentText();
 void displayToast(const __FlashStringHelper* messageInProgmem, unsigned short duration, bool fontSize2x = false);
 void displayToast(const char* message, unsigned short duration, bool fontSize2x = false);

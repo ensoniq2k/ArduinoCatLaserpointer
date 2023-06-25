@@ -36,7 +36,10 @@
 #define X_COMP(x, y) x //x + static_cast<int>(static_cast<double>(X_COMP_FACTOR / 100.0 * y))
 #define Y_COMP(x, y) y
 
-#define MIN_DISTANCE 15
+// How many steps a move consists of. 
+// At boundaries the direction is inverted and movement continued
+#define MIN_MOVE_DISTANCE 20
+#define MAX_MOVE_DISTANCE 100
 
 extern OneButton ButtonLeft;
 extern OneButton ButtonRight;

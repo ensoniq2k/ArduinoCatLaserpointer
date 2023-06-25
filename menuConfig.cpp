@@ -1,5 +1,4 @@
 #include "menu.h"
-#include "menuTranslation.h"
 
 // Menu Headers --------
 // ID, Label, First mnuItem_t ID, Last mnuItem_t ID, CurrentItem (only used for internal track keeping so set to 0)
@@ -27,10 +26,10 @@ const PROGMEM MD_Menu::mnuItem_t menuItems[] =
   { MENU_LASER_BRIGHTNESS,        MENUSTR_BRIGHTNESS,             MD_Menu::MNU_INPUT_FB,   MENU_LASER_BRIGHTNESS },
   { MENU_LASER_SIDE_LEFT,         MENUSTR_SIDE_LEFT,              MD_Menu::MNU_INPUT_FB,   MENU_LASER_SIDE_LEFT },
   { MENU_LASER_SIDE_RIGHT,        MENUSTR_SIDE_RIGHT,             MD_Menu::MNU_INPUT_FB,   MENU_LASER_SIDE_RIGHT },
-  { MENU_LASER_FRONT_FAR,         MENUSTR_FRONT_FAR,              MD_Menu::MNU_INPUT_FB,   MENU_LASER_FRONT_FAR },
   { MENU_LASER_FRONT_NEAR,        MENUSTR_FRONT_NEAR,             MD_Menu::MNU_INPUT_FB,   MENU_LASER_FRONT_NEAR },
-  { MENU_LASER_SPEED_MIN,         MENUSTR_SPEED_MIN,              MD_Menu::MNU_INPUT,      MENU_LASER_SPEED_MIN },
-  { MENU_LASER_SPEED_MAX,         MENUSTR_SPEED_MAX,              MD_Menu::MNU_INPUT,      MENU_LASER_SPEED_MAX },
+  { MENU_LASER_FRONT_FAR,         MENUSTR_FRONT_FAR,              MD_Menu::MNU_INPUT_FB,   MENU_LASER_FRONT_FAR },
+  { MENU_LASER_SPEED_MIN,         MENUSTR_SPEED_MIN,              MD_Menu::MNU_INPUT_FB,   MENU_LASER_SPEED_MIN },
+  { MENU_LASER_SPEED_MAX,         MENUSTR_SPEED_MAX,              MD_Menu::MNU_INPUT_FB,   MENU_LASER_SPEED_MAX },
   { MENU_LASER_BLANKING_ON_OFF,   MENUSTR_LASER_BLANKING,         MD_Menu::MNU_INPUT,      MENU_LASER_BLANKING_ON_OFF },
   { MENU_LASER_SHOW_BOUNDARIES,   MENUSTR_LASER_SHOW_BOUNDARIES,  MD_Menu::MNU_INPUT,      MENU_LASER_SHOW_BOUNDARIES },
 
@@ -53,18 +52,18 @@ const PROGMEM MD_Menu::mnuInput_t menuInputs[] =
   { MENU_CENTER_SERVOS, "",  MD_Menu::INP_RUN,   menuCenterServos,      10,  0,  0,  0,  0,   0, nullptr },
 
   // Laser settings     
-  { MENU_LASER_BRIGHTNESS,        MENUSTR_BRIGHTNESS,             MD_Menu::INP_INT,   menuLaserBrightness,      3, 1, 0, 20,              0, 10, nullptr },
+  { MENU_LASER_BRIGHTNESS,        MENUSTR_BRIGHTNESS,             MD_Menu::INP_INT,   menuLaserBrightness,      3, 1, 0, 10,              0, 10, nullptr },
   { MENU_LASER_SIDE_LEFT,         MENUSTR_SIDE_LEFT,              MD_Menu::INP_INT,   menuSetMinimumSide,       3, 1, 0, MENU_SIDE_MAX,   0, 10, nullptr },
   { MENU_LASER_SIDE_RIGHT,        MENUSTR_SIDE_RIGHT,             MD_Menu::INP_INT,   menuSetMaximumSide,       3, 1, 0, MENU_SIDE_MAX,   0, 10, nullptr },
-  { MENU_LASER_FRONT_FAR,         MENUSTR_FRONT_FAR,              MD_Menu::INP_INT,   menuSetMinimumFront,      3, 1, 0, MENU_FRONT_MAX,  0, 10, nullptr },
   { MENU_LASER_FRONT_NEAR,        MENUSTR_FRONT_NEAR,             MD_Menu::INP_INT,   menuSetMaximumFront,      3, 1, 0, MENU_FRONT_MAX,  0, 10, nullptr },
+  { MENU_LASER_FRONT_FAR,         MENUSTR_FRONT_FAR,              MD_Menu::INP_INT,   menuSetMinimumFront,      3, 1, 0, MENU_FRONT_MAX,  0, 10, nullptr },
   { MENU_LASER_SPEED_MIN,         MENUSTR_SPEED_MIN,              MD_Menu::INP_INT,   menuSetSpeedMin,          3, 1, 0, MENU_SPEED_MAX,  0, 10, nullptr },
   { MENU_LASER_SPEED_MAX,         MENUSTR_SPEED_MAX,              MD_Menu::INP_INT,   menuSetSpeedMax,          3, 1, 0, MENU_SPEED_MAX,  0, 10, nullptr },
   { MENU_LASER_BLANKING_ON_OFF,   MENUSTR_LASER_BLANKING,         MD_Menu::INP_BOOL,  menuSetLaserBlankout,     0, 0, 0, 0,               0, 10, nullptr },
   { MENU_LASER_SHOW_BOUNDARIES,   MENUSTR_LASER_SHOW_BOUNDARIES,  MD_Menu::INP_RUN,   menuLaserShowBoundaries,  0, 0, 0, 0,               0, 10, nullptr },
 
   // Timer settings
-  { MENU_TIMER_ON_OFF,     MENUSTR_TIMER_ON,      MD_Menu::INP_BOOL,  menuSetTimerOnOff,   2,  0,  0,   0,  0,  10, nullptr },
+  { MENU_TIMER_ON_OFF,     MENUSTR_TIMER_ON_OFF,  MD_Menu::INP_BOOL,  menuSetTimerOnOff,   2,  0,  0,   0,  0,  10, nullptr },
   { MENU_TIMER_RUN_SEC,    MENUSTR_RUN_SECONDS,   MD_Menu::INP_INT,   menuSetRunDuration,  2,  0,  0,  59,  0,  10, nullptr },
   { MENU_TIMER_RUN_MIN,    MENUSTR_RUN_MINUTES,   MD_Menu::INP_INT,   menuSetRunDuration,  2,  0,  0,  30,  0,  10, nullptr },
   { MENU_TIMER_SLEEP_MIN,  MENUSTR_SLEEP_MINUTES, MD_Menu::INP_INT,   menuSetRunInterval,  2,  0,  0,  60,  0,  10, nullptr },

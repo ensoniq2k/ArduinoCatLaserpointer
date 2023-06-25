@@ -26,15 +26,10 @@ bool laserBlankingEnabled = true;
 const uint8_t MIN_LASER_OFF_TICKS = 5;    
 const uint8_t MAX_LASER_OFF_TICKS = 50;
 
-// How many steps a move consists of. 
-// At boundaries the direction is inverted and movement continued
-const uint8_t MIN_MOVE_DISTANCE = 20;
-const uint8_t MAX_MOVE_DISTANCE = 100;
-
 bool wakeUpTimerActive = false;
 
-short xInterval = 1;
-short yInterval = 1;
+bool xInvertDirection = false;
+bool yInvertDirection = false;
 
 uint8_t xTurnaround = X_MAX;
 uint8_t yTurnaround = Y_MAX;
@@ -183,14 +178,14 @@ void stopLaser() {
 
 void randomMoves() {
   if (movementType == mtDiagonal) {
-    moveAxis(xInterval, xPos, xTurnaround, X_MIN, X_MAX);
-    moveAxis(yInterval, yPos, yTurnaround, Y_MIN, Y_MAX);
+    moveAxis(xInvertDirection, xPos, xTurnaround, X_MIN, X_MAX);
+    moveAxis(yInvertDirection, yPos, yTurnaround, Y_MIN, Y_MAX);
   } 
   else if (movementType == mtHorizontal) {
-    moveAxis(xInterval, xPos, xTurnaround, X_MIN, X_MAX);
+    moveAxis(xInvertDirection, xPos, xTurnaround, X_MIN, X_MAX);
   }
   else if (movementType == mtVertical) {
-    moveAxis(yInterval, yPos, yTurnaround, Y_MIN, Y_MAX);
+    moveAxis(yInvertDirection, yPos, yTurnaround, Y_MIN, Y_MAX);
   }
 
   triggerLaser();
@@ -217,20 +212,21 @@ void chooseNewRandomMovementPattern() {
 }
 
 // Moves the laser in straight lines
-void moveAxis(short& interval, uint8_t& pos, uint8_t& tunraround, uint8_t axisMin, uint8_t axisMax) {
-  if (interval == 1) {
-    if (pos < tunraround) {
-      pos++;
-    } else {
-      interval = -1;
-      tunraround = random(axisMin, yPos - MIN_DISTANCE);
-    }
-  } else {
-    if (pos > tunraround) {
+void moveAxis(bool& invertDirection, uint8_t& pos, uint8_t& tunraround, uint8_t axisMin, uint8_t axisMax) {
+  if (invertDirection) {
+    if (pos >= tunraround) {
       pos--;
     } else {
-      interval = 1;
-      tunraround = random(pos + MIN_DISTANCE, axisMax);
+      invertDirection = false;
+      tunraround = random(pos + MIN_MOVE_DISTANCE, axisMax);
+    }
+  }
+  else {
+    if (pos <= tunraround) {
+      pos++;
+    } else {
+      invertDirection = true;
+      tunraround = random(axisMin, yPos - MIN_MOVE_DISTANCE);
     }
   }
 }
@@ -305,6 +301,8 @@ void writeSettingsToEeprom() {
     EEPROM.put(ADRESS_LASER_BRIGHTNESS, LASER_BRIGHTNESS);
     EEPROM.put(ADRESS_WAKEUP_TIMER_ACTIVE, wakeUpTimerActive);
     EEPROM.put(ADRESS_LASER_BLANKING_ENABLED, laserBlankingEnabled);
+    EEPROM.put(ADRESS_SPEED_MIN, MAX_STEP_DELAY);
+    EEPROM.put(ADRESS_SPEED_MAX, MIN_STEP_DELAY);
 
   EEPROM.end();
 }
@@ -345,6 +343,12 @@ void restoreSettingsFromEeprom() {
 
   EEPROM.get(ADRESS_LASER_BLANKING_ENABLED, readUInt8);
   if(readUInt8 != EMPTY_EEPROM_1BYTE) laserBlankingEnabled = readUInt8;
+
+  EEPROM.get(ADRESS_SPEED_MIN, readUInt8);
+  if(readUInt8 != EMPTY_EEPROM_1BYTE) MAX_STEP_DELAY = readUInt8;
+
+  EEPROM.get(ADRESS_SPEED_MAX, readUInt8);
+  if(readUInt8 != EMPTY_EEPROM_1BYTE) MIN_STEP_DELAY = readUInt8;
 
   EEPROM.end();
 }
