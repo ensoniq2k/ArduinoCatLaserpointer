@@ -22,6 +22,7 @@ uint8_t MIN_STEP_DELAY = 20;
 uint8_t MAX_STEP_DELAY = 50;
 
 // Minimum and maximum time the laser can be turned off to confuse the cat
+bool laserBlankingEnabled = true;
 const uint8_t MIN_LASER_OFF_TICKS = 5;    
 const uint8_t MAX_LASER_OFF_TICKS = 50;
 
@@ -194,8 +195,8 @@ void randomMoves() {
 
   triggerLaser();
 
-  xAxis.write(xPos);
-  yAxis.write(yPos);
+  xAxis.write(X_COMP(xPos, yPos));
+  yAxis.write(Y_COMP(xPos, yPos));
 }
 
 void chooseNewRandomMovementPattern() {
@@ -236,7 +237,7 @@ void moveAxis(short& interval, uint8_t& pos, uint8_t& tunraround, uint8_t axisMi
 
 // Shuts off the laser for brief moments to confuse the cat
 void triggerLaser() {
-  if (laserOffTicks == 0) {
+  if (laserBlankingEnabled && laserOffTicks == 0) {
     if (random(1, 1250) == 1) {
       analogWrite(LASER_PIN, LOW);
       laserOffDuration = random(MIN_LASER_OFF_TICKS, MAX_LASER_OFF_TICKS);
@@ -255,27 +256,36 @@ void triggerLaser() {
 void laserShowSquareBoundaries() {
   startLaser();
 
-  xAxis.write(X_MIN);
-  yAxis.write(Y_MIN);
+  uint8_t x = X_MIN;
+  uint8_t y = Y_MIN;
+
+  xAxis.write(X_COMP(x, y));
+  yAxis.write(Y_COMP(x, y));
   uint8_t delayMs = 50;
 
-  for(short x = X_MIN; x < X_MAX; x++) {
-    xAxis.write(x);
+  for(x = X_MIN; x < X_MAX; x++) {
+    xAxis.write(X_COMP(x, y));
+    yAxis.write(Y_COMP(x, y));
     delay(delayMs);
   }
 
-  for(short y = Y_MIN; y < Y_MAX; y++) {
-    yAxis.write(y);
+  for(y = Y_MIN; y < Y_MAX; y++) {
+    xAxis.write(X_COMP(x, y));
+    yAxis.write(Y_COMP(x, y));
+    Serial.print(y); Serial.print(" - "); Serial.print(x); Serial.print(" - "); Serial.println(X_COMP(x, y));
     delay(delayMs);
   }
 
-  for(short x = X_MAX; x > X_MIN; x--) {
-    xAxis.write(x);
+  for(x = X_MAX; x > X_MIN; x--) {
+    xAxis.write(X_COMP(x, y));
+    yAxis.write(Y_COMP(x, y));
     delay(delayMs);
   }
 
-  for(short y = Y_MAX; y > Y_MIN; y--) {
-    yAxis.write(y);
+  for(y = Y_MAX; y > Y_MIN; y--) {
+    xAxis.write(X_COMP(x, y));
+    yAxis.write(Y_COMP(x, y));
+    Serial.print(y); Serial.print(" - "); Serial.print(x); Serial.print(" - "); Serial.println(X_COMP(x, y));
     delay(delayMs);
   }
 
@@ -294,6 +304,7 @@ void writeSettingsToEeprom() {
     EEPROM.put(ADRESS_SLEEPTIME, SLEEPTIME_MINUTES);
     EEPROM.put(ADRESS_LASER_BRIGHTNESS, LASER_BRIGHTNESS);
     EEPROM.put(ADRESS_WAKEUP_TIMER_ACTIVE, wakeUpTimerActive);
+    EEPROM.put(ADRESS_LASER_BLANKING_ENABLED, laserBlankingEnabled);
 
   EEPROM.end();
 }
@@ -331,6 +342,9 @@ void restoreSettingsFromEeprom() {
 
   EEPROM.get(ADRESS_WAKEUP_TIMER_ACTIVE, readUInt8);
   if(readUInt8 != EMPTY_EEPROM_1BYTE) wakeUpTimerActive = readUInt8;
+
+  EEPROM.get(ADRESS_LASER_BLANKING_ENABLED, readUInt8);
+  if(readUInt8 != EMPTY_EEPROM_1BYTE) laserBlankingEnabled = readUInt8;
 
   EEPROM.end();
 }

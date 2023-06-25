@@ -284,6 +284,21 @@ MD_Menu::value_t *menuSetTimerOnOff(MD_Menu::mnuId_t id, MD_Menu::requestType_t 
   return &menuValueBuffer;
 }
 
+MD_Menu::value_t *menuSetLaserBlankout(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
+    switch(reqType) {
+    case MD_Menu::REQ_GET:
+      menuValueBuffer.value = laserBlankingEnabled;
+      break;
+
+    case MD_Menu::REQ_SET:
+      laserBlankingEnabled = menuValueBuffer.value;
+      writeSettingsToEeprom();
+      break;  
+  }
+
+  return &menuValueBuffer;
+}
+
 MD_Menu::value_t *menuCenterServos(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
   switch(reqType) {
     case MD_Menu::REQ_GET:

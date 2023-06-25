@@ -22,6 +22,7 @@
   #define MENUSTR_FRONT_NEAR             "Limit near"
   #define MENUSTR_SPEED_MIN              "Speed min"
   #define MENUSTR_SPEED_MAX              "Speed max"
+  #define MENUSTR_LASER_BLANKING         "Blanking"
   #define MENUSTR_LASER_SHOW_BOUNDARIES  "Show boundary"
   
   #define MENUSTR_TIMER_ON_OFF           "Timer On/Off"

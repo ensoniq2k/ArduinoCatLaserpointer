@@ -14,4 +14,5 @@
 #define ADRESS_LASER_BRIGHTNESS ADRESS_SLEEPTIME + sizeof(uint16_t)
 
 #define ADRESS_WAKEUP_TIMER_ACTIVE ADRESS_LASER_BRIGHTNESS + sizeof(uint8_t)
-#define ADRESS_ ADRESS_WAKEUP_TIMER_ACTIVE + sizeof(uint8_t) //Arduino handles bool as one byte in flash
+#define ADRESS_LASER_BLANKING_ENABLED ADRESS_WAKEUP_TIMER_ACTIVE + sizeof(uint8_t) //Arduino handles bool as one byte in flash
+#define ADRESS_ ADRESS_LASER_BLANKING_ENABLED + sizeof(uint8_t) //Arduino handles bool as one byte in flash

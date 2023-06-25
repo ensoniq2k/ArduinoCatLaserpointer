@@ -30,7 +30,8 @@
 #define MENU_LASER_FRONT_NEAR 35
 #define MENU_LASER_SPEED_MIN 36
 #define MENU_LASER_SPEED_MAX 37
-#define MENU_LASER_SHOW_BOUNDARIES 38
+#define MENU_LASER_BLANKING_ON_OFF 38
+#define MENU_LASER_SHOW_BOUNDARIES 39
 
 
 #define LASER_SIDE_HARD_MIN 20
@@ -77,6 +78,7 @@ MD_Menu::value_t *menuLaserBrightness(MD_Menu::mnuId_t id, MD_Menu::requestType_
 MD_Menu::value_t *menuShowNextRun(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType);
 MD_Menu::value_t *menuRestartSleepTimer(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType);
 MD_Menu::value_t *menuLaserShowBoundaries(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType);
+MD_Menu::value_t *menuSetLaserBlankout(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType);
 MD_Menu::value_t *menuSetTimerOnOff(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType);
 MD_Menu::value_t *menuSetRunDuration(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType);
 MD_Menu::value_t *menuSetRunInterval(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType);

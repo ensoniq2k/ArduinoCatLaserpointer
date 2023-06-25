@@ -31,6 +31,11 @@
 #define SECONDS_PER_HOUR   3600
 #define SECONDS_PER_MINUTE 60
 
+#define X_COMP_FACTOR 10
+// Experimental trapezoid compensation
+#define X_COMP(x, y) x //x + static_cast<int>(static_cast<double>(X_COMP_FACTOR / 100.0 * y))
+#define Y_COMP(x, y) y
+
 #define MIN_DISTANCE 15
 
 extern OneButton ButtonLeft;
@@ -56,6 +61,7 @@ extern uint16_t RUNTIME_SECONDS;    // Time for each "round" until device goes t
 extern uint16_t SLEEPTIME_MINUTES;  // Time for how long the device sleeps until it reactivates itself
 
 extern bool wakeUpTimerActive;
+extern bool laserBlankingEnabled;
 
 enum movementTypeEnum { 
   mtNone, 
