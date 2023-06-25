@@ -80,4 +80,5 @@ void initMenu() {
   mainMenu.begin();
   mainMenu.setTimeout(MENU_TIMEOUT);
   mainMenu.setMenuWrap(false);
+  mainMenu.setMenuItemIntWrap(false);
 }
