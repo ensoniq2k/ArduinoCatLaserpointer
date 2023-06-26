@@ -38,8 +38,10 @@
 
 // How many steps a move consists of. 
 // At boundaries the direction is inverted and movement continued
-#define MIN_MOVE_DISTANCE 20
+#define MIN_MOVE_DISTANCE 10
 #define MAX_MOVE_DISTANCE 100
+
+#define MIN_AREA_SIZE MIN_MOVE_DISTANCE * 2
 
 extern OneButton ButtonLeft;
 extern OneButton ButtonRight;

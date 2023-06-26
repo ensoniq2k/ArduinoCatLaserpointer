@@ -47,6 +47,10 @@
 #define MENU_FROM_SIDE_VALUE(val) (val - LASER_SIDE_HARD_MIN) / MENU_LASER_LIMIT_STEP_FACTOR
 #define MENU_FROM_FRONT_VALUE(val) (LASER_FRONT_HARD_MAX - val) / MENU_LASER_LIMIT_STEP_FACTOR
 #define MENU_SPEED_MAX 15
+#define MENU_MIN_SPEED_VALUE 10 // Delay in ms between each step
+#define MENU_SPEED_STEP_FACTOR 10 // Additional ms of delay for each -1 in speed setting
+#define MENU_TO_SPEED_VALUE(val) ((MENU_SPEED_MAX - val) * MENU_SPEED_STEP_FACTOR) + MENU_MIN_SPEED_VALUE
+#define MENU_FROM_SPEED_VALUE(val) MENU_SPEED_MAX - ((val - MENU_MIN_SPEED_VALUE) / MENU_SPEED_STEP_FACTOR)
 
 #define MENU_TIMEOUT 60000 // in milliseconds
 

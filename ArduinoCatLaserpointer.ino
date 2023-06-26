@@ -132,13 +132,13 @@ void laserMove() {
 
   randomMoves();
 
-  // 
   unsigned short randomDelay = random(MIN_STEP_DELAY, MAX_STEP_DELAY);
+  Serial.println(randomDelay);
   laserMoveTimerId = timer.setTimeout(laserMoveLambda, randomDelay);
 }
 
 void startRun() {
-  randomSeed(analogRead(0));
+  randomSeed(analogRead(A0));
 
   if(RUNTIME_SECONDS < 1) {
     return;
@@ -212,21 +212,27 @@ void chooseNewRandomMovementPattern() {
 }
 
 // Moves the laser in straight lines
-void moveAxis(bool& invertDirection, uint8_t& pos, uint8_t& tunraround, uint8_t axisMin, uint8_t axisMax) {
+void moveAxis(bool& invertDirection, uint8_t& pos, uint8_t& turnaround, uint8_t axisMin, uint8_t axisMax) {
+  // Serial.print("Invert: ");       Serial.print(invertDirection);
+  // Serial.print(" Pos: ");          Serial.print(pos);
+  // Serial.print(" Turnaround: ");   Serial.print(turnaround);
+  // Serial.print(" Axis min: "); Serial.print(axisMin);
+  // Serial.print(" Axis max: "); Serial.println(axisMax);
+
   if (invertDirection) {
-    if (pos >= tunraround) {
+    if (pos > turnaround && pos > axisMin) {
       pos--;
     } else {
       invertDirection = false;
-      tunraround = random(pos + MIN_MOVE_DISTANCE, axisMax);
+      turnaround = random(pos + MIN_MOVE_DISTANCE, axisMax);
     }
   }
   else {
-    if (pos <= tunraround) {
+    if (pos < turnaround && pos < axisMax) {
       pos++;
     } else {
       invertDirection = true;
-      tunraround = random(axisMin, yPos - MIN_MOVE_DISTANCE);
+      turnaround = random(axisMin, pos - MIN_MOVE_DISTANCE);
     }
   }
 }
@@ -268,7 +274,6 @@ void laserShowSquareBoundaries() {
   for(y = Y_MIN; y < Y_MAX; y++) {
     xAxis.write(X_COMP(x, y));
     yAxis.write(Y_COMP(x, y));
-    Serial.print(y); Serial.print(" - "); Serial.print(x); Serial.print(" - "); Serial.println(X_COMP(x, y));
     delay(delayMs);
   }
 
@@ -281,7 +286,6 @@ void laserShowSquareBoundaries() {
   for(y = Y_MAX; y > Y_MIN; y--) {
     xAxis.write(X_COMP(x, y));
     yAxis.write(Y_COMP(x, y));
-    Serial.print(y); Serial.print(" - "); Serial.print(x); Serial.print(" - "); Serial.println(X_COMP(x, y));
     delay(delayMs);
   }
 
@@ -360,6 +364,9 @@ void updateSettings() {
 
   xTurnaround = X_MAX;
   yTurnaround = Y_MAX;
+
+  xInvertDirection = false;
+  yInvertDirection = false;
 }
 
 void restartSleepTimer() {

@@ -131,7 +131,7 @@ MD_Menu::value_t *menuSetMinimumSide(MD_Menu::mnuId_t id, MD_Menu::requestType_t
       break;    
     
     case MD_Menu::REQ_UPD:
-      if(MENU_TO_SIDE_VALUE(menuValueBuffer.value) > X_MAX - MIN_MOVE_DISTANCE) {
+      if(MENU_TO_SIDE_VALUE(menuValueBuffer.value) > X_MAX - MIN_AREA_SIZE) {
         menuValueBuffer.value = menuValueBuffer.value -1;
       }
       xAxis.write(MENU_TO_SIDE_VALUE(menuValueBuffer.value));
@@ -162,7 +162,7 @@ MD_Menu::value_t *menuSetMaximumSide(MD_Menu::mnuId_t id, MD_Menu::requestType_t
       break;    
     
     case MD_Menu::REQ_UPD:
-      if(MENU_TO_SIDE_VALUE(menuValueBuffer.value) < X_MIN + MIN_MOVE_DISTANCE) {
+      if(MENU_TO_SIDE_VALUE(menuValueBuffer.value) < X_MIN + MIN_AREA_SIZE) {
         menuValueBuffer.value = menuValueBuffer.value +1;
       }
       xAxis.write(MENU_TO_SIDE_VALUE(menuValueBuffer.value));
@@ -193,7 +193,7 @@ MD_Menu::value_t *menuSetMinimumFront(MD_Menu::mnuId_t id, MD_Menu::requestType_
       break;    
     
     case MD_Menu::REQ_UPD:
-      if(MENU_TO_FRONT_VALUE(menuValueBuffer.value) > Y_MAX - MIN_MOVE_DISTANCE) {
+      if(MENU_TO_FRONT_VALUE(menuValueBuffer.value) > Y_MAX - MIN_AREA_SIZE) {
         menuValueBuffer.value = menuValueBuffer.value +1;
       }
       yAxis.write(MENU_TO_FRONT_VALUE(menuValueBuffer.value));
@@ -224,7 +224,7 @@ MD_Menu::value_t *menuSetMaximumFront(MD_Menu::mnuId_t id, MD_Menu::requestType_
       break;    
     
     case MD_Menu::REQ_UPD:
-      if(MENU_TO_FRONT_VALUE(menuValueBuffer.value) < Y_MIN + MIN_MOVE_DISTANCE) {
+      if(MENU_TO_FRONT_VALUE(menuValueBuffer.value) < Y_MIN + MIN_AREA_SIZE) {
         menuValueBuffer.value = menuValueBuffer.value -1;
       }
       yAxis.write(MENU_TO_FRONT_VALUE(menuValueBuffer.value));
@@ -242,16 +242,16 @@ MD_Menu::value_t *menuSetSpeedMin(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
     switch(reqType) {
     case MD_Menu::REQ_GET:
       endRun();
-      menuValueBuffer.value = sqrt(MIN_STEP_DELAY);
+      menuValueBuffer.value = MENU_FROM_SPEED_VALUE(MAX_STEP_DELAY);
       break;
 
     case MD_Menu::REQ_SET:
-      MIN_STEP_DELAY = pow(menuValueBuffer.value, 2);
+      MAX_STEP_DELAY = MENU_TO_SPEED_VALUE(menuValueBuffer.value);
       writeSettingsToEeprom();
       break;    
 
     case MD_Menu::REQ_UPD:
-      if(menuValueBuffer.value > sqrt(MAX_STEP_DELAY)) {
+      if(menuValueBuffer.value > MENU_FROM_SPEED_VALUE(MIN_STEP_DELAY)) {
         menuValueBuffer.value = menuValueBuffer.value -1;
       }
       break;  
@@ -264,16 +264,16 @@ MD_Menu::value_t *menuSetSpeedMax(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
     switch(reqType) {
     case MD_Menu::REQ_GET:
       endRun();
-      menuValueBuffer.value = sqrt(MAX_STEP_DELAY);
+      menuValueBuffer.value = MENU_FROM_SPEED_VALUE(MIN_STEP_DELAY);
       break;
 
     case MD_Menu::REQ_SET:
-      MAX_STEP_DELAY = pow(menuValueBuffer.value, 2);
+      MIN_STEP_DELAY = MENU_TO_SPEED_VALUE(menuValueBuffer.value);
       writeSettingsToEeprom();
       break;  
 
     case MD_Menu::REQ_UPD:
-      if(menuValueBuffer.value < sqrt(MIN_STEP_DELAY)) {
+      if(menuValueBuffer.value < MENU_FROM_SPEED_VALUE(MAX_STEP_DELAY)) {
         menuValueBuffer.value = menuValueBuffer.value +1;
       }
       break;    
