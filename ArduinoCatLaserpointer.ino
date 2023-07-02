@@ -161,11 +161,13 @@ void endRun() {
 }
 
 void startLaser() {
-  analogWrite(LASER_PIN, LASER_BRIGHTNESS);
-  digitalWrite(X_SERVO_MOSFET_PIN, HIGH);
-  digitalWrite(Y_SERVO_MOSFET_PIN, HIGH);
   xAxis.attach(X_SERVO_PIN);
   yAxis.attach(Y_SERVO_PIN);
+  digitalWrite(X_SERVO_MOSFET_PIN, HIGH);
+  delay(125); // Short delay to make sure we don't have a voltage drop crashing the cpu
+  digitalWrite(Y_SERVO_MOSFET_PIN, HIGH);
+  delay(125); // Short delay to make sure we don't have a voltage drop crashing the cpu
+  analogWrite(LASER_PIN, LASER_BRIGHTNESS);
 }
 
 void stopLaser() {
