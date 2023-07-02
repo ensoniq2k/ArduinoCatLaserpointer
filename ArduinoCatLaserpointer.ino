@@ -9,10 +9,10 @@ OneButton ButtonEscape = OneButton(BUTTON_ESCAPE, true, true);
 
 uint8_t LASER_BRIGHTNESS = 100;
 
-uint8_t X_MIN = 60;
-uint8_t X_MAX = 120;
-uint8_t Y_MIN = 60;
-uint8_t Y_MAX = 120;
+uint8_t SIDE_MIN = 60;
+uint8_t SIDE_MAX = 120;
+uint8_t FRONT_MIN = 60;
+uint8_t FRONT_MAX = 120;
 
 uint16_t RUNTIME_SECONDS = 180;
 uint16_t SLEEPTIME_MINUTES = 180;
@@ -28,34 +28,36 @@ const uint8_t MAX_LASER_OFF_TICKS = 50;
 
 bool wakeUpTimerActive = false;
 
-bool xInvertDirection = false;
-bool yInvertDirection = false;
+bool sideInvertDirection = false;
+bool frontInvertDirection = false;
 
-uint8_t xTurnaround = X_MAX;
-uint8_t yTurnaround = Y_MAX;
+uint8_t sideTurnaround = SIDE_MAX;
+uint8_t frontTurnaround = FRONT_MAX;
 
-uint8_t xPos = MIDPOINT(X_MIN, X_MAX);
-uint8_t yPos = MIDPOINT(Y_MIN, Y_MAX);
+uint8_t sidePos = MIDPOINT(SIDE_MIN, SIDE_MAX);
+uint8_t frontPos = MIDPOINT(FRONT_MIN, FRONT_MAX);
 
 uint8_t laserOffDuration = 0;
 uint8_t laserOffTicks = 0;
 
-uint8_t  movementTypeTicks = 0;
-uint8_t  runningTicks = 0;
-
 movementTypeEnum movementType;
 
-Servo xAxis;
-Servo yAxis;
+Servo sideAxis;
+Servo frontAxis;
 
 AsyncTimer timer;
 
-unsigned short laserMoveTimerId = 0;
 unsigned short laserWakeUpTimerId = 0;
 unsigned short laserRuntimeUpTimerId = 0;
+unsigned short laserMoveGovernorId = 0;
+unsigned short laserMoveSideId = 0;
+unsigned short laserMoveFrontId = 0;
 auto laserWakeUpLambda = [] { startRun(); };
 auto laserRuntimeUpLambda = [] { endRun(); };
-auto laserMoveLambda = [] { if(!mainMenu.isInMenu()) laserMove(); };
+auto laserMoveGovernorLambda = [] { if(!mainMenu.isInMenu()) laserMove(); };
+auto laserMoveSideLambda = [&]() { moveAxis(sideInvertDirection, sidePos, sideTurnaround, SIDE_MIN, SIDE_MAX, sideAxis); };
+auto laserMoveFrontLambda = [&]() { moveAxis(frontInvertDirection, frontPos, frontTurnaround, FRONT_MIN, FRONT_MAX, frontAxis); };
+
 
 void setup() {
   Serial.begin(9600);
@@ -81,7 +83,7 @@ void setup() {
 
   updateSettings();
   restartSleepTimer();
-  initMenu();
+  initMenu(); 
 }
 
 void loop() {
@@ -111,30 +113,34 @@ void loop() {
 void checkUserInput() {
 
   // Start if button pressed
-  if (menuNavAction == MD_Menu::NAV_ESC && laserMoveTimerId == 0 && !mainMenu.isInMenu()) {
+  if (menuNavAction == MD_Menu::NAV_ESC && laserMoveGovernorId == 0 && !mainMenu.isInMenu()) {
     menuNavAction = MD_Menu::NAV_NULL;
     startRun();
   }
 
   // Stop if button pressed
-  if (menuNavAction == MD_Menu::NAV_ESC && laserMoveTimerId > 0 && !mainMenu.isInMenu()) {
+  if (menuNavAction == MD_Menu::NAV_ESC && laserMoveGovernorId > 0 && !mainMenu.isInMenu()) {
     menuNavAction = MD_Menu::NAV_NULL;
     endRun();
   }
 }
 
-void laserMove() {
-  if (runningTicks > movementTypeTicks) {
-    chooseNewRandomMovementPattern();
-  }
-  else
-    runningTicks++;
+void startLaser() {
+  sideAxis.attach(X_SERVO_PIN);
+  frontAxis.attach(Y_SERVO_PIN);
+  digitalWrite(X_SERVO_MOSFET_PIN, HIGH);
+  delay(125); // Short delay to make sure we don't have a voltage drop crashing the cpu
+  digitalWrite(Y_SERVO_MOSFET_PIN, HIGH);
+  delay(125); // Short delay to make sure we don't have a voltage drop crashing the cpu
+  analogWrite(LASER_PIN, LASER_BRIGHTNESS);
+}
 
-  randomMoves();
-
-  unsigned short randomDelay = random(MIN_STEP_DELAY, MAX_STEP_DELAY);
-  Serial.println(randomDelay);
-  laserMoveTimerId = timer.setTimeout(laserMoveLambda, randomDelay);
+void stopLaser() {
+  analogWrite(LASER_PIN, LOW);
+  digitalWrite(X_SERVO_MOSFET_PIN, LOW);
+  digitalWrite(Y_SERVO_MOSFET_PIN, LOW);
+  sideAxis.detach();
+  frontAxis.detach();
 }
 
 void startRun() {
@@ -152,52 +158,44 @@ void startRun() {
 }
 
 void endRun() {
-  timer.cancel(laserMoveTimerId);
-  laserMoveTimerId = 0;
+  timer.cancel(laserMoveSideId);
+  laserMoveSideId = 0;
+  timer.cancel(laserMoveFrontId);
+  laserMoveFrontId = 0;
+  timer.cancel(laserMoveGovernorId);
+  laserMoveGovernorId = 0;
   timer.cancel(laserRuntimeUpTimerId);
   laserRuntimeUpTimerId = 0;
 
   stopLaser();
 }
 
-void startLaser() {
-  xAxis.attach(X_SERVO_PIN);
-  yAxis.attach(Y_SERVO_PIN);
-  digitalWrite(X_SERVO_MOSFET_PIN, HIGH);
-  delay(125); // Short delay to make sure we don't have a voltage drop crashing the cpu
-  digitalWrite(Y_SERVO_MOSFET_PIN, HIGH);
-  delay(125); // Short delay to make sure we don't have a voltage drop crashing the cpu
-  analogWrite(LASER_PIN, LASER_BRIGHTNESS);
-}
+void laserMove() {
+  timer.cancel(laserMoveSideId);
+  laserMoveSideId = 0;
+  timer.cancel(laserMoveFrontId);
+  laserMoveFrontId = 0;
 
-void stopLaser() {
-  analogWrite(LASER_PIN, LOW);
-  digitalWrite(X_SERVO_MOSFET_PIN, LOW);
-  digitalWrite(Y_SERVO_MOSFET_PIN, LOW);
-  xAxis.detach();
-  yAxis.detach();
+  laserMoveGovernorId = timer.setTimeout(laserMoveGovernorLambda, random(MIN_MOVE_MILLIS, MAX_MOVE_MILLIS));
+  chooseNewRandomMovementPattern();
+  randomMoves();
 }
 
 void randomMoves() {
+
   if (movementType == mtDiagonal) {
-    moveAxis(xInvertDirection, xPos, xTurnaround, X_MIN, X_MAX);
-    moveAxis(yInvertDirection, yPos, yTurnaround, Y_MIN, Y_MAX);
+    laserMoveSideId = timer.setInterval(laserMoveSideLambda, random(MIN_STEP_DELAY, MAX_STEP_DELAY));
+    laserMoveFrontId = timer.setInterval(laserMoveFrontLambda, random(MIN_STEP_DELAY, MAX_STEP_DELAY));
   } 
   else if (movementType == mtHorizontal) {
-    moveAxis(xInvertDirection, xPos, xTurnaround, X_MIN, X_MAX);
+    laserMoveSideId = timer.setInterval(laserMoveSideLambda, random(MIN_STEP_DELAY, MAX_STEP_DELAY));
   }
   else if (movementType == mtVertical) {
-    moveAxis(yInvertDirection, yPos, yTurnaround, Y_MIN, Y_MAX);
+    laserMoveFrontId = timer.setInterval(laserMoveFrontLambda, random(MIN_STEP_DELAY, MAX_STEP_DELAY));
   }
-
-  triggerLaser();
-
-  xAxis.write(X_COMP(xPos, yPos));
-  yAxis.write(Y_COMP(xPos, yPos));
 }
 
 void chooseNewRandomMovementPattern() {
-    runningTicks = 0;
     int movementTypeDiceRoll = random(0, 1000); 
   
     if (movementTypeDiceRoll < 600)   
@@ -208,19 +206,15 @@ void chooseNewRandomMovementPattern() {
       movementType = mtVertical;
     else
       movementType = mtNone;
-
-    // How long the distance of ticks the movement should last
-    movementTypeTicks = random(MIN_MOVE_DISTANCE, MAX_MOVE_DISTANCE);
 }
 
 // Moves the laser in straight lines
-void moveAxis(bool& invertDirection, uint8_t& pos, uint8_t& turnaround, uint8_t axisMin, uint8_t axisMax) {
-  // Serial.print("Invert: ");       Serial.print(invertDirection);
-  // Serial.print(" Pos: ");          Serial.print(pos);
-  // Serial.print(" Turnaround: ");   Serial.print(turnaround);
-  // Serial.print(" Axis min: "); Serial.print(axisMin);
-  // Serial.print(" Axis max: "); Serial.println(axisMax);
-
+void moveAxis(bool& invertDirection, uint8_t& pos, uint8_t& turnaround, uint8_t axisMin, uint8_t axisMax, Servo servoAxis) {
+  // Serial.print("Invert: "); Serial.println(invertDirection);
+  // Serial.print("Pos: "); Serial.println(pos);
+  // Serial.print("Turnaround: "); Serial.println(turnaround);
+  // Serial.println();
+  
   if (invertDirection) {
     if (pos > turnaround && pos > axisMin) {
       pos--;
@@ -237,6 +231,8 @@ void moveAxis(bool& invertDirection, uint8_t& pos, uint8_t& turnaround, uint8_t 
       turnaround = random(axisMin, pos - MIN_MOVE_DISTANCE);
     }
   }
+
+  servoAxis.write(pos);
 }
 
 // Shuts off the laser for brief moments to confuse the cat
@@ -244,7 +240,7 @@ void triggerLaser() {
   if (laserBlankingEnabled && laserOffTicks == 0) {
     if (random(1, 1250) == 1) {
       analogWrite(LASER_PIN, LOW);
-      laserOffDuration = random(MIN_LASER_OFF_TICKS, MAX_LASER_OFF_TICKS);
+      laserOffDuration = random(MIN_LASER_OFF_TICKS, MAX_LASER_OFF_TICKS); 
       laserOffTicks = 1;
     }
   } else {
@@ -260,36 +256,40 @@ void triggerLaser() {
 void laserShowSquareBoundaries() {
   startLaser();
 
-  uint8_t x = X_MIN;
-  uint8_t y = Y_MIN;
+  delay(500);
 
-  xAxis.write(X_COMP(x, y));
-  yAxis.write(Y_COMP(x, y));
+  uint8_t side = SIDE_MIN;
+  uint8_t front = FRONT_MIN;
+
+  sideAxis.write(side);
+  frontAxis.write(front);
   uint8_t delayMs = 50;
 
-  for(x = X_MIN; x < X_MAX; x++) {
-    xAxis.write(X_COMP(x, y));
-    yAxis.write(Y_COMP(x, y));
+  for(side = SIDE_MIN; side < SIDE_MAX; side++) {
+    sideAxis.write(side);
+    frontAxis.write(front);
     delay(delayMs);
   }
 
-  for(y = Y_MIN; y < Y_MAX; y++) {
-    xAxis.write(X_COMP(x, y));
-    yAxis.write(Y_COMP(x, y));
+  for(front = FRONT_MIN; front < FRONT_MAX; front++) {
+    sideAxis.write(side);
+    frontAxis.write(front);
     delay(delayMs);
   }
 
-  for(x = X_MAX; x > X_MIN; x--) {
-    xAxis.write(X_COMP(x, y));
-    yAxis.write(Y_COMP(x, y));
+  for(side = SIDE_MAX; side > SIDE_MIN; side--) {
+    sideAxis.write(side);
+    frontAxis.write(front);
     delay(delayMs);
   }
 
-  for(y = Y_MAX; y > Y_MIN; y--) {
-    xAxis.write(X_COMP(x, y));
-    yAxis.write(Y_COMP(x, y));
+  for(front = FRONT_MAX; front > FRONT_MIN; front--) {
+    sideAxis.write(side);
+    frontAxis.write(front);
     delay(delayMs);
   }
+
+  delay(500);
 
   stopLaser();
 }
@@ -297,10 +297,10 @@ void laserShowSquareBoundaries() {
 void writeSettingsToEeprom() {
   EEPROM.begin();
 
-    EEPROM.put(ADRESS_X_MIN, X_MIN);
-    EEPROM.put(ADRESS_X_MAX, X_MAX);
-    EEPROM.put(ADRESS_Y_MIN, Y_MIN);
-    EEPROM.put(ADRESS_Y_MAX, Y_MAX);
+    EEPROM.put(ADRESS_X_MIN, SIDE_MIN);
+    EEPROM.put(ADRESS_X_MAX, SIDE_MAX);
+    EEPROM.put(ADRESS_Y_MIN, FRONT_MIN);
+    EEPROM.put(ADRESS_Y_MAX, FRONT_MAX);
     //EEPROM.put(ADRESS_FONT_TYPE, static_cast<uint8_t>(currentFont));
     EEPROM.put(ADRESS_RUNTIME, RUNTIME_SECONDS);
     EEPROM.put(ADRESS_SLEEPTIME, SLEEPTIME_MINUTES);
@@ -321,16 +321,16 @@ void restoreSettingsFromEeprom() {
   uint16_t readUInt16;
 
   EEPROM.get(ADRESS_X_MIN, readUInt8);
-  if(readUInt8 != EMPTY_EEPROM_1BYTE) X_MIN = readUInt8;
+  if(readUInt8 != EMPTY_EEPROM_1BYTE) SIDE_MIN = readUInt8;
 
   EEPROM.get(ADRESS_X_MAX, readUInt8);
-  if(readUInt8 != EMPTY_EEPROM_1BYTE) X_MAX = readUInt8;
+  if(readUInt8 != EMPTY_EEPROM_1BYTE) SIDE_MAX = readUInt8;
 
   EEPROM.get(ADRESS_Y_MIN, readUInt8);
-  if(readUInt8 != EMPTY_EEPROM_1BYTE) Y_MIN = readUInt8;
+  if(readUInt8 != EMPTY_EEPROM_1BYTE) FRONT_MIN = readUInt8;
 
   EEPROM.get(ADRESS_Y_MAX, readUInt8);
-  if(readUInt8 != EMPTY_EEPROM_1BYTE) Y_MAX = readUInt8;
+  if(readUInt8 != EMPTY_EEPROM_1BYTE) FRONT_MAX = readUInt8;
 
   //EEPROM.get(ADRESS_FONT_TYPE, readUInt8);
   //if(readUInt8 != EMPTY_EEPROM_1BYTE) currentFont = static_cast<Fonts>(readUInt8);
@@ -361,14 +361,14 @@ void restoreSettingsFromEeprom() {
 
 // Recalculation after reading from EEPROM or changing settings
 void updateSettings() {
-  xPos = MIDPOINT(X_MIN, X_MAX);
-  yPos = MIDPOINT(Y_MIN, Y_MAX);
+  sidePos = MIDPOINT(SIDE_MIN, SIDE_MAX);
+  frontPos = MIDPOINT(FRONT_MIN, FRONT_MAX);
 
-  xTurnaround = X_MAX;
-  yTurnaround = Y_MAX;
+  sideTurnaround = SIDE_MAX;
+  frontTurnaround = FRONT_MAX;
 
-  xInvertDirection = false;
-  yInvertDirection = false;
+  sideInvertDirection = false;
+  frontInvertDirection = false;
 }
 
 void restartSleepTimer() {
