@@ -40,6 +40,9 @@ uint8_t frontPos = MIDPOINT(FRONT_MIN, FRONT_MAX);
 uint8_t laserOffDuration = 0;
 uint8_t laserOffTicks = 0;
 
+uint8_t consecuitiveSmallMovementsSide = 0;
+uint8_t consecuitiveSmallMovementsFront = 0;
+
 movementTypeEnum movementType;
 
 Servo sideAxis;
@@ -55,8 +58,8 @@ unsigned short laserMoveFrontId = 0;
 auto laserWakeUpLambda = [] { startRun(); };
 auto laserRuntimeUpLambda = [] { endRun(); };
 auto laserMoveGovernorLambda = [] { if(!mainMenu.isInMenu()) laserMove(); };
-auto laserMoveSideLambda = [&]() { moveAxis(sideInvertDirection, sidePos, sideTurnaround, SIDE_MIN, SIDE_MAX, sideAxis); };
-auto laserMoveFrontLambda = [&]() { moveAxis(frontInvertDirection, frontPos, frontTurnaround, FRONT_MIN, FRONT_MAX, frontAxis); };
+auto laserMoveSideLambda = [&]() { moveAxis(sideInvertDirection, sidePos, sideTurnaround, SIDE_MIN, SIDE_MAX, consecuitiveSmallMovementsSide, sideAxis); };
+auto laserMoveFrontLambda = [&]() { moveAxis(frontInvertDirection, frontPos, frontTurnaround, FRONT_MIN, FRONT_MAX, consecuitiveSmallMovementsFront, frontAxis); };
 
 
 void setup() {
@@ -209,18 +212,30 @@ void chooseNewRandomMovementPattern() {
 }
 
 // Moves the laser in straight lines
-void moveAxis(bool& invertDirection, uint8_t& pos, uint8_t& turnaround, uint8_t axisMin, uint8_t axisMax, Servo servoAxis) {
-  // Serial.print("Invert: "); Serial.println(invertDirection);
-  // Serial.print("Pos: "); Serial.println(pos);
-  // Serial.print("Turnaround: "); Serial.println(turnaround);
-  // Serial.println();
+void moveAxis(bool& invertDirection, uint8_t& pos, uint8_t& turnaround, uint8_t axisMin, uint8_t axisMax, uint8_t& consecuitiveSmallMovements, Servo servoAxis) {
   
   if (invertDirection) {
     if (pos > turnaround && pos > axisMin) {
       pos--;
     } else {
       invertDirection = false;
-      turnaround = random(pos + MIN_MOVE_DISTANCE, axisMax);
+
+      if(consecuitiveSmallMovements >= MAX_CONSECUITIVE_SMALL_MOVES) {
+        turnaround = axisMax;
+      }
+      else
+      {
+        turnaround = random(pos + MIN_MOVE_DISTANCE, axisMax);
+      }
+
+      // Once in a while we force a large move
+      if(turnaround < axisMax * SMALL_MOVE_FACTOR) {
+        consecuitiveSmallMovements++;
+      }
+      else
+      {
+        consecuitiveSmallMovements = 0;
+      }
     }
   }
   else {
@@ -228,7 +243,23 @@ void moveAxis(bool& invertDirection, uint8_t& pos, uint8_t& turnaround, uint8_t 
       pos++;
     } else {
       invertDirection = true;
-      turnaround = random(axisMin, pos - MIN_MOVE_DISTANCE);
+
+      if(consecuitiveSmallMovements >= MAX_CONSECUITIVE_SMALL_MOVES) {
+        turnaround = axisMin;
+      }
+      else
+      {
+        turnaround = random(axisMin, pos - MIN_MOVE_DISTANCE);
+      }
+
+      // Once in a while we force a large move
+      if(turnaround * SMALL_MOVE_FACTOR > axisMin) {
+        consecuitiveSmallMovements++;
+      }
+      else
+      {
+        consecuitiveSmallMovements = 0;
+      }
     }
   }
 

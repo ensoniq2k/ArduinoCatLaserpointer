@@ -41,6 +41,9 @@
 
 #define MIN_AREA_SIZE MIN_MOVE_DISTANCE * 2
 
+#define MAX_CONSECUITIVE_SMALL_MOVES 5
+#define SMALL_MOVE_FACTOR 0.75
+
 extern OneButton ButtonLeft;
 extern OneButton ButtonRight;
 extern OneButton ButtonEnter;
@@ -81,7 +84,7 @@ void sweep(int AFrom, int ATo, int AHorizontalDirection, bool ABack);
 void moveWithSimulatedShaking(int AFrom, int ATo, int AHorizontalDirection);
 void sleep();
 void randomMoves();
-void moveAxis(bool& invertDirection, uint8_t& pos, uint8_t& turnaround, uint8_t axisMin, uint8_t axisMax, Servo servoAxis);
+void moveAxis(bool& invertDirection, uint8_t& pos, uint8_t& turnaround, uint8_t axisMin, uint8_t axisMax, uint8_t& consecuitiveSmallMovements, Servo servoAxis);
 void triggerLaser();
 void laserMove();
 void laserShowSquareBoundaries();
