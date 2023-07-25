@@ -31,33 +31,34 @@
 #define SECONDS_PER_HOUR   3600
 #define SECONDS_PER_MINUTE 60
 
-#define X_COMP_FACTOR 10
-// Experimental trapezoid compensation
-#define X_COMP(x, y) x //x + static_cast<int>(static_cast<double>(X_COMP_FACTOR / 100.0 * y))
-#define Y_COMP(x, y) y
-
 // How many steps a move consists of. 
 // At boundaries the direction is inverted and movement continued
-#define MIN_MOVE_DISTANCE 10
-#define MAX_MOVE_DISTANCE 100
+#define MIN_MOVE_DISTANCE 25
+#define MAX_MOVE_DISTANCE 150
+
+#define MIN_MOVE_MILLIS 500
+#define MAX_MOVE_MILLIS 5000
 
 #define MIN_AREA_SIZE MIN_MOVE_DISTANCE * 2
+
+#define MAX_CONSECUITIVE_SMALL_MOVES 5
+#define SMALL_MOVE_FACTOR 0.75
 
 extern OneButton ButtonLeft;
 extern OneButton ButtonRight;
 extern OneButton ButtonEnter;
 extern OneButton ButtonEscape;
 
-extern Servo xAxis;
-extern Servo yAxis;
+extern Servo sideAxis;
+extern Servo frontAxis;
 
 extern uint8_t LASER_BRIGHTNESS;
 
 // X/Y Boundaries for the laser to stay inside while moving
-extern uint8_t X_MIN;
-extern uint8_t X_MAX;
-extern uint8_t Y_MIN;
-extern uint8_t Y_MAX;
+extern uint8_t SIDE_MIN;
+extern uint8_t SIDE_MAX;
+extern uint8_t FRONT_MIN;
+extern uint8_t FRONT_MAX;
 
 extern uint8_t MIN_STEP_DELAY;  
 extern uint8_t MAX_STEP_DELAY;
@@ -72,8 +73,7 @@ enum movementTypeEnum {
   mtNone, 
   mtDiagonal,
   mtHorizontal,
-  mtVertical,
-  mtCircle
+  mtVertical
 };
 
 void startLaser();
@@ -84,7 +84,7 @@ void sweep(int AFrom, int ATo, int AHorizontalDirection, bool ABack);
 void moveWithSimulatedShaking(int AFrom, int ATo, int AHorizontalDirection);
 void sleep();
 void randomMoves();
-void moveAxis(int& interval, int& pos, int& tunraround, int axisMin, int axisMax);
+void moveAxis(bool& invertDirection, uint8_t& pos, uint8_t& turnaround, uint8_t axisMin, uint8_t axisMax, uint8_t& consecuitiveSmallMovements, Servo servoAxis);
 void triggerLaser();
 void laserMove();
 void laserShowSquareBoundaries();
