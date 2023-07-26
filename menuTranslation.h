@@ -26,11 +26,9 @@
   #define MENUSTR_LASER_SHOW_BOUNDARIES  "Show boundary"
   
   #define MENUSTR_TIMER_ON_OFF           "Timer On/Off"
-  #define MENUSTR_RUN_SECONDS            "Run seconds"
-  #define MENUSTR_RUN_MINUTES            "Run minutes"
-  #define MENUSTR_SLEEP_MINUTES          "Sleep minutes"
-  #define MENUSTR_SLEEP_HOURS            "Sleep hours"
-  #define MENUSTR_SLEEP_DAYS             "Sleep days"
+  #define MENUSTR_RUN_TIMER              "Run duration"
+  #define MENUSTR_SLEEP_TIMER            "Sleep duration"
+
 
   #define MENUSTR_TIMER_RESTARTED        "Timer\nrestarted!"
   #define MENUSTR_CENTERING_SERVOS       "Centering\nServos"
@@ -58,11 +56,8 @@
   #define MENUSTR_LASER_SHOW_BOUNDARIES  "Zeige Areal"
   
   #define MENUSTR_TIMER_ON_OFF           "Timer An/Aus"
-  #define MENUSTR_RUN_SECONDS            "Lauf Sekunden"
-  #define MENUSTR_RUN_MINUTES            "Lauf Minuten"
-  #define MENUSTR_SLEEP_MINUTES          "Schlaf Minuten"
-  #define MENUSTR_SLEEP_HOURS            "Schlaf Stunden"
-  #define MENUSTR_SLEEP_DAYS             "Schlaf Tage"
+  #define MENUSTR_RUN_TIMER              "Laufzeit"
+  #define MENUSTR_SLEEP_TIMER            "Schlafdauer"
 
   #define MENUSTR_TIMER_RESTARTED        "Timer neu\ngestartet"
   #define MENUSTR_CENTERING_SERVOS       "Zentriere\nServos"

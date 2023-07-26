@@ -5,7 +5,7 @@
 const PROGMEM MD_Menu::mnuHeader_t menuHeader[] =
 {
   { 10,                   MENUSTR_MAIN_MENU,       10, 14, 0 },
-  { MENU_TIMER_SETTINGS, MENUSTR_TIMER_SETTINGS,  MENU_TIMER_ON_OFF,      MENU_TIMER_SLEEP_DAY,       0 },
+  { MENU_TIMER_SETTINGS, MENUSTR_TIMER_SETTINGS,  MENU_TIMER_ON_OFF,      MENU_TIMER_SLEEP,     0 },
   { MENU_LASER_SETTINGS, MENUSTR_LASER_SETTINGS,  MENU_LASER_BRIGHTNESS,  MENU_LASER_SHOW_BOUNDARIES, 0 },
 };
 
@@ -34,12 +34,9 @@ const PROGMEM MD_Menu::mnuItem_t menuItems[] =
   { MENU_LASER_SHOW_BOUNDARIES,   MENUSTR_LASER_SHOW_BOUNDARIES,  MD_Menu::MNU_INPUT,      MENU_LASER_SHOW_BOUNDARIES },
 
   // Auto Timer   
-  { MENU_TIMER_ON_OFF,        MENUSTR_TIMER_ON_OFF,   MD_Menu::MNU_INPUT,   MENU_TIMER_ON_OFF },
-  { MENU_TIMER_RUN_SEC,       MENUSTR_RUN_SECONDS,    MD_Menu::MNU_INPUT,   MENU_TIMER_RUN_SEC },
-  { MENU_TIMER_RUN_MIN,       MENUSTR_RUN_MINUTES,    MD_Menu::MNU_INPUT,   MENU_TIMER_RUN_MIN },
-  { MENU_TIMER_SLEEP_MIN,     MENUSTR_SLEEP_MINUTES,  MD_Menu::MNU_INPUT,   MENU_TIMER_SLEEP_MIN },
-  { MENU_TIMER_SLEEP_HOUR,    MENUSTR_SLEEP_HOURS,    MD_Menu::MNU_INPUT,   MENU_TIMER_SLEEP_HOUR },
-  { MENU_TIMER_SLEEP_DAY,     MENUSTR_SLEEP_DAYS,     MD_Menu::MNU_INPUT,   MENU_TIMER_SLEEP_DAY },
+  { MENU_TIMER_ON_OFF,  MENUSTR_TIMER_ON_OFF,   MD_Menu::MNU_INPUT,   MENU_TIMER_ON_OFF },
+  { MENU_TIMER_RUN,     MENUSTR_RUN_TIMER,    MD_Menu::MNU_INPUT,   MENU_TIMER_RUN },
+  { MENU_TIMER_SLEEP,   MENUSTR_SLEEP_TIMER,  MD_Menu::MNU_INPUT,   MENU_TIMER_SLEEP },
 };
 
 // ID, Label, inputAction_t = type of input, callback for get/set of value, width of field on display, 
@@ -63,12 +60,9 @@ const PROGMEM MD_Menu::mnuInput_t menuInputs[] =
   { MENU_LASER_SHOW_BOUNDARIES,   MENUSTR_LASER_SHOW_BOUNDARIES,  MD_Menu::INP_RUN,   menuLaserShowBoundaries,  0, 0, 0, 0,               0, 10, nullptr },
 
   // Timer settings
-  { MENU_TIMER_ON_OFF,     MENUSTR_TIMER_ON_OFF,  MD_Menu::INP_BOOL,  menuSetTimerOnOff,   2,  0,  0,   0,  0,  10, nullptr },
-  { MENU_TIMER_RUN_SEC,    MENUSTR_RUN_SECONDS,   MD_Menu::INP_INT,   menuSetRunDuration,  2,  0,  0,  59,  0,  10, nullptr },
-  { MENU_TIMER_RUN_MIN,    MENUSTR_RUN_MINUTES,   MD_Menu::INP_INT,   menuSetRunDuration,  2,  0,  0,  30,  0,  10, nullptr },
-  { MENU_TIMER_SLEEP_MIN,  MENUSTR_SLEEP_MINUTES, MD_Menu::INP_INT,   menuSetRunInterval,  2,  0,  0,  60,  0,  10, nullptr },
-  { MENU_TIMER_SLEEP_HOUR, MENUSTR_SLEEP_HOURS,   MD_Menu::INP_INT,   menuSetRunInterval,  2,  0,  0,  24,  0,  10, nullptr },
-  { MENU_TIMER_SLEEP_DAY,  MENUSTR_SLEEP_DAYS,    MD_Menu::INP_INT,   menuSetRunInterval,  2,  0,  0,  30,  0,  10, nullptr },
+  { MENU_TIMER_ON_OFF, MENUSTR_TIMER_ON_OFF,  MD_Menu::INP_BOOL, menuSetTimerOnOff,   2,  0,  0,   0,  0,  10, nullptr },
+  { MENU_TIMER_RUN,    MENUSTR_RUN_TIMER,     MD_Menu::INP_TIME, menuSetRunDuration,  0,  10, MD_Menu::TEP_SECONDS,  1800,                 MD_Menu::TEP_MINUTES, 10, nullptr },
+  { MENU_TIMER_SLEEP,  MENUSTR_SLEEP_TIMER,   MD_Menu::INP_TIME, menuSetRunInterval,  0,  60, MD_Menu::TEP_MINUTES,  7 * SECONDS_PER_DAY,  MD_Menu::TEP_DAYS,    10, nullptr },
 };
 
 MD_Menu mainMenu(navigateMenu, displayMenu,        // user navigation and display
