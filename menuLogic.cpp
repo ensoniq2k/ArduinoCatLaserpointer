@@ -18,21 +18,11 @@ MD_Menu::value_t *menuRestartSleepTimer(MD_Menu::mnuId_t id, MD_Menu::requestTyp
 MD_Menu::value_t *menuSetRunDuration(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
   switch(reqType) {
   case MD_Menu::REQ_GET:
-    if(id == MENU_TIMER_RUN_SEC) {
-      menuValueBuffer.value = RUNTIME_SECONDS % 60;
-    }
-    if(id == MENU_TIMER_RUN_MIN) {
-      menuValueBuffer.value = RUNTIME_SECONDS / 60;
-    }
+    menuValueBuffer.value = RUNTIME_SECONDS;
     break;
 
   case MD_Menu::REQ_SET:
-    if(id == MENU_TIMER_RUN_SEC) {
-      RUNTIME_SECONDS = (RUNTIME_SECONDS / 60 * 60) + menuValueBuffer.value;    
-    }
-    if(id == MENU_TIMER_RUN_MIN) {
-      RUNTIME_SECONDS = (RUNTIME_SECONDS % 60) + menuValueBuffer.value * 60;
-    }
+    RUNTIME_SECONDS = menuValueBuffer.value;    
 
     writeSettingsToEeprom();
     break;   
@@ -42,48 +32,24 @@ MD_Menu::value_t *menuSetRunDuration(MD_Menu::mnuId_t id, MD_Menu::requestType_t
 }
 
 MD_Menu::value_t *menuSetRunInterval(MD_Menu::mnuId_t id, MD_Menu::requestType_t reqType) {
-  uint16_t remainMin = SLEEPTIME_MINUTES;
-  uint8_t day, hour;
-  
-  day = remainMin / MINUTES_PER_DAY; 
-  remainMin = remainMin % MINUTES_PER_DAY;
-
-  hour = remainMin / MINUTES_PER_HOUR;
-  remainMin = remainMin % MINUTES_PER_HOUR;
 
   switch(reqType) {
-  case MD_Menu::REQ_GET:
-    if(id == MENU_TIMER_SLEEP_MIN) {
-      menuValueBuffer.value = remainMin;
-    }
-    if(id == MENU_TIMER_SLEEP_HOUR) {
-      menuValueBuffer.value = hour;
-    }
-    if(id == MENU_TIMER_SLEEP_DAY) {
-      menuValueBuffer.value = day;
-    }
-    break;
+    case MD_Menu::REQ_GET:
+      menuValueBuffer.value = static_cast<uint32_t>(SLEEPTIME_MINUTES) * SECONDS_PER_MINUTE;
+      break;
 
-  case MD_Menu::REQ_SET:
-    if(id == MENU_TIMER_SLEEP_MIN) {
-      SLEEPTIME_MINUTES = menuValueBuffer.value + (hour * MINUTES_PER_HOUR) + (day * MINUTES_PER_DAY);
-    }
-    if(id == MENU_TIMER_SLEEP_HOUR) {
-      SLEEPTIME_MINUTES = remainMin + (menuValueBuffer.value * MINUTES_PER_HOUR) + (day * MINUTES_PER_DAY);
-    }
-    if(id == MENU_TIMER_SLEEP_DAY) {
-      SLEEPTIME_MINUTES = remainMin + (hour * MINUTES_PER_HOUR) + (menuValueBuffer.value * MINUTES_PER_DAY);
-    }
-    
-    // Sleep time must be longer than runtime to prevent unexpected behaviour
-    if(SLEEPTIME_MINUTES > 0 && SLEEPTIME_MINUTES < RUNTIME_SECONDS / SECONDS_PER_MINUTE + 1) {
-      // Just to be safe we set it twice as long as the runtime
-      SLEEPTIME_MINUTES = (RUNTIME_SECONDS / SECONDS_PER_MINUTE) * 2;
-    }
+    case MD_Menu::REQ_SET:
+      SLEEPTIME_MINUTES = static_cast<uint16_t>(menuValueBuffer.value / SECONDS_PER_MINUTE);
 
-    writeSettingsToEeprom();
-    restartSleepTimer();
-    break;   
+      // Sleep time must be longer than runtime to prevent unexpected behaviour
+      if(SLEEPTIME_MINUTES > 0 && SLEEPTIME_MINUTES < RUNTIME_SECONDS / SECONDS_PER_MINUTE + 1) {
+        // Just to be safe we set it twice as long as the runtime
+        SLEEPTIME_MINUTES = (RUNTIME_SECONDS / SECONDS_PER_MINUTE) + 1;
+      }
+
+      writeSettingsToEeprom();
+      restartSleepTimer();
+      break;   
   } 
 
   return &menuValueBuffer;
