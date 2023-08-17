@@ -5,6 +5,22 @@ SSD1306AsciiWire display;
 char textLine1[25];
 char textLine2[25];
 
+void showSplashScreen() {
+  const char* splash = "GATOINO";
+                          // G  A   T   O   I   N   O
+  const uint8_t spacing[] = {0, 20, 38, 56, 78, 88, 108};
+  display.set2X();
+  display.setRow(2);
+  for(uint8_t i = 0; i < 7; i++) {
+    display.setCol(spacing[i]);
+    display.print(splash[i]);
+    delay(250);
+  }
+  delay(2500);
+  display.clear();
+  display.set1X();
+}
+
 bool displayMenu(MD_Menu::userDisplayAction_t action, char *msg)
 {
   bool success = true;
@@ -19,6 +35,7 @@ bool displayMenu(MD_Menu::userDisplayAction_t action, char *msg)
     display.setFont(Arial_bold_14);
     display.clear();
     display.displayRemap(false); // Rotation
+    showSplashScreen();
     break;
 
   case MD_Menu::DISP_CLEAR:
