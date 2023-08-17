@@ -5,6 +5,19 @@ SSD1306AsciiWire display;
 char textLine1[25];
 char textLine2[25];
 
+void waitForButton(unsigned short duration) {
+  uint32_t waitUntil = millis() + duration;
+
+  while(millis() < waitUntil)
+  {
+    tickButtons();
+    if(menuNavAction != MD_Menu::NAV_NULL) {
+      menuNavAction = MD_Menu::NAV_NULL;
+      break;
+    }
+  }
+}
+
 void showSplashScreen() {
   const char* splash = "GATOINO";
                           // G  A   T   O   I   N   O
@@ -14,11 +27,9 @@ void showSplashScreen() {
   for(uint8_t i = 0; i < 7; i++) {
     display.setCol(spacing[i]);
     display.print(splash[i]);
-    delay(250);
+    delay(150);
   }
-  delay(2500);
-  display.clear();
-  display.set1X();
+  waitForButton(2500);
 }
 
 bool displayMenu(MD_Menu::userDisplayAction_t action, char *msg)
@@ -36,6 +47,8 @@ bool displayMenu(MD_Menu::userDisplayAction_t action, char *msg)
     display.clear();
     display.displayRemap(false); // Rotation
     showSplashScreen();
+    display.clear();
+    display.set1X();
     break;
 
   case MD_Menu::DISP_CLEAR:
@@ -64,19 +77,6 @@ void displayShowCurrentText() {
   displayMenu(MD_Menu::DISP_CLEAR);
   displayMenu(MD_Menu::DISP_L0, textLine1);
   displayMenu(MD_Menu::DISP_L1, textLine2);
-}
-
-void waitForButton(unsigned short duration) {
-  uint32_t waitUntil = millis() + duration;
-
-  while(millis() < waitUntil)
-  {
-    tickButtons();
-    if(menuNavAction != MD_Menu::NAV_NULL) {
-      menuNavAction = MD_Menu::NAV_NULL;
-      break;
-    }
-  }
 }
 
 void displayToast(const __FlashStringHelper* messageInProgmem, unsigned short duration, bool fontSize2x = false) {
