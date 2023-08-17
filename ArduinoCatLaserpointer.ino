@@ -90,10 +90,7 @@ void setup() {
 }
 
 void loop() {
-  ButtonLeft.tick();
-  ButtonRight.tick();
-  ButtonEnter.tick();
-  ButtonEscape.tick();
+  tickButtons();
 
   // Handle all timer events
   timer.handle();
@@ -111,6 +108,13 @@ void loop() {
   }
 
   mainMenu.runMenu();   // Must run in loop in order to work
+}
+
+void tickButtons() {
+  ButtonLeft.tick();
+  ButtonRight.tick();
+  ButtonEnter.tick();
+  ButtonEscape.tick();
 }
 
 void checkUserInput() {

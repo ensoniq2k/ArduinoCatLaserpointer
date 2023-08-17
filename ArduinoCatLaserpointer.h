@@ -76,6 +76,7 @@ enum movementTypeEnum {
   mtVertical
 };
 
+void tickButtons();
 void startLaser();
 void stopLaser();
 void startRun();

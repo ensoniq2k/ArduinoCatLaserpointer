@@ -49,6 +49,19 @@ void displayShowCurrentText() {
   displayMenu(MD_Menu::DISP_L1, textLine2);
 }
 
+void waitForButton(unsigned short duration) {
+  uint32_t waitUntil = millis() + duration;
+
+  while(millis() < waitUntil)
+  {
+    tickButtons();
+    if(menuNavAction != MD_Menu::NAV_NULL) {
+      menuNavAction = MD_Menu::NAV_NULL;
+      break;
+    }
+  }
+}
+
 void displayToast(const __FlashStringHelper* messageInProgmem, unsigned short duration, bool fontSize2x = false) {
   char message[strlen_P((const char*)messageInProgmem) + 1]; // Allocate a char array on the stack
   strcpy_P(message, (const char*)messageInProgmem); // Copy the characters from the __FlashStringHelper object into the char array
@@ -57,7 +70,9 @@ void displayToast(const __FlashStringHelper* messageInProgmem, unsigned short du
   display.setRow(3);
   display.setCol(0);
   display.print(message);
-  delay(duration);
+
+  waitForButton(duration);
+  
   display.set1X();
 }
 
@@ -66,6 +81,8 @@ void displayToast(const char* message, unsigned short duration, bool fontSize2x 
   display.setRow(3);
   display.setCol(0);
   display.print(message);
-  delay(duration);
+  
+  waitForButton(duration);
+
   display.set1X();
 }

@@ -10,7 +10,7 @@ MD_Menu::value_t *menuRestartSleepTimer(MD_Menu::mnuId_t id, MD_Menu::requestTyp
 
     case MD_Menu::REQ_SET:
       restartSleepTimer();
-      displayToast(F(MENUSTR_TIMER_RESTARTED), 1000, false);
+      displayToast(F(MENUSTR_TIMER_RESTARTED), 10000, false);
       break;    
   }
 }
@@ -289,7 +289,7 @@ MD_Menu::value_t *menuCenterServos(MD_Menu::mnuId_t id, MD_Menu::requestType_t r
 
     case MD_Menu::REQ_SET:
       endRun();
-      displayToast(F(MENUSTR_CENTERING_SERVOS), 1000, false);
+      displayToast(F(MENUSTR_CENTERING_SERVOS), 10000, false);
       startLaser();
       sideAxis.write(90);
       frontAxis.write(90);
@@ -319,7 +319,7 @@ MD_Menu::value_t *menuShowNextRun(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
 
     case MD_Menu::REQ_SET:
       if(!wakeUpTimerActive || SLEEPTIME_MINUTES < 1) {
-        displayToast(F(MENUSTR_NO_TIMER_SET), 1500, false); 
+        displayToast(F(MENUSTR_NO_TIMER_SET), 10000, false); 
         break;
       }
 
@@ -337,7 +337,7 @@ MD_Menu::value_t *menuShowNextRun(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
 
       char timeMessage[30];
       sprintf(timeMessage, MENUSTR_NEXT_RUN_IN, day, hour, min, remainSeconds);
-      displayToast(timeMessage, 1500, false);
+      displayToast(timeMessage, 10000, false);
     break;
   }
 }
