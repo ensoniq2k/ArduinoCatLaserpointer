@@ -289,7 +289,7 @@ MD_Menu::value_t *menuCenterServos(MD_Menu::mnuId_t id, MD_Menu::requestType_t r
 
     case MD_Menu::REQ_SET:
       endRun();
-      displayToast(F(MENUSTR_CENTERING_SERVOS), 10000, false);
+      displayToast(F(MENUSTR_CENTERING_SERVOS), 0, false);
       startLaser();
       sideAxis.write(90);
       frontAxis.write(90);
