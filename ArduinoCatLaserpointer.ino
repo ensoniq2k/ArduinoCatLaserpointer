@@ -77,12 +77,6 @@ void setup() {
   digitalWrite(Y_SERVO_MOSFET_PIN, LOW);
   analogWrite(LASER_PIN, LOW);
 
-  // FACTORY RESET
-  if(digitalRead(BUTTON_LEFT) == LOW && digitalRead(BUTTON_RIGHT) == LOW) {
-    Serial.println("Factory Reset!");
-    writeSettingsToEeprom();
-  }
-
   ButtonLeft.attachClick([] { menuNavAction = MD_Menu::NAV_DEC; });
   ButtonRight.attachClick([] { menuNavAction = MD_Menu::NAV_INC; });
   ButtonEnter.attachClick([] { menuNavAction = MD_Menu::NAV_SEL; });

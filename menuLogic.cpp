@@ -323,7 +323,7 @@ MD_Menu::value_t *menuShowNextRun(MD_Menu::mnuId_t id, MD_Menu::requestType_t re
         break;
       }
 
-      uint16_t remainSeconds = getNextRunSeconds();
+      uint32_t remainSeconds = getNextRunSeconds();
       uint8_t day, hour, min;
       
       day = remainSeconds / SECONDS_PER_DAY; 
