@@ -11,8 +11,8 @@ uint8_t LASER_BRIGHTNESS = 100;
 
 uint8_t SIDE_MIN = 60;
 uint8_t SIDE_MAX = 120;
-uint8_t FRONT_MIN = 60;
-uint8_t FRONT_MAX = 120;
+uint8_t FRONT_MAX = 100;
+uint8_t FRONT_MIN = 40;
 
 uint16_t RUNTIME_SECONDS = 180;
 uint16_t SLEEPTIME_MINUTES = 180;
