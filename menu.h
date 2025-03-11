@@ -1,5 +1,7 @@
 #pragma once
 
+//#define ALTERNATE_DISPLAY_LIB
+
 #include <Arduino.h>
 #include <MD_Menu.h>
 
@@ -8,8 +10,6 @@
 
 #define SCREEN_ADDRESS 0x3C  /// See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 
-#include <SSD1306Ascii.h>
-#include <SSD1306AsciiWire.h>
 
 #define MENU_NEXT_RUN 10
 #define MENU_RESTART_SLEEP 11

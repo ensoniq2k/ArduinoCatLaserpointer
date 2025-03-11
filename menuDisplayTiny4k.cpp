@@ -1,11 +1,11 @@
 #include "menu.h"
 
-#ifndef ALTERNATE_DISPLAY_LIB
+#ifdef ALTERNATE_DISPLAY_LIB
 
-#include <SSD1306Ascii.h>
-#include <SSD1306AsciiWire.h>
+#include <Tiny4kOLED.h>
 
-SSD1306AsciiWire display;
+const DCfont *FONT1x = FONT6X8;
+const DCfont *FONT2x = FONT8X16;
 
 char textLine1[25];
 char textLine2[25];
@@ -26,12 +26,11 @@ void waitForButton(unsigned short duration) {
 void showSplashScreen() {
   const char* splash = "GATOINO";
                           // G  A   T   O   I   N   O
-  const uint8_t spacing[] = {0, 20, 38, 56, 78, 88, 108};
-  display.set2X();
-  display.setRow(2);
+  const uint8_t spacing[] = {0, 20, 38, 56, 78, 98, 118};
+
   for(uint8_t i = 0; i < 7; i++) {
-    display.setCol(spacing[i]);
-    display.print(splash[i]);
+    oled.setCursor(spacing[i] +2, 1);
+    oled.print(splash[i]);
     delay(150);
   }
   waitForButton(2500);
@@ -44,36 +43,40 @@ bool displayMenu(MD_Menu::userDisplayAction_t action, char *msg)
   switch (action)
   {
   case MD_Menu::DISP_INIT:
-    Wire.begin();
-    Wire.setClock(400000L);
-
-    display.begin(&Adafruit128x64, SCREEN_ADDRESS);
-    display.setFont(Arial_bold_14);
-    display.clear();
-    display.displayRemap(false); // Rotation
+    oled.begin();
+    oled.setFont(FONT2x);
+    oled.clear();
+    oled.on();
     showSplashScreen();
-    display.clear();
-    display.set1X();
+    oled.clear();
     break;
 
   case MD_Menu::DISP_CLEAR:
-    display.clear();
+    oled.clear();
     break;
 
   case MD_Menu::DISP_L0:
     strcpy(textLine1, msg); 
-    display.setRow(0);
-    display.setCol(0);
-    display.print(textLine1);
-    display.clearToEOL();
+    
+    oled.switchRenderFrame();
+    oled.clear();
+    oled.setCursor(0, 0);
+    oled.print(textLine1);
+    oled.setCursor(0, 2);
+    oled.print(textLine2);
+    oled.switchDisplayFrame();
     break;
 
   case MD_Menu::DISP_L1:
     strcpy(textLine2, msg);
-    display.setRow(4);
-    display.setCol(0);
-    display.print(textLine2);
-    display.clearToEOL();  
+
+    oled.switchRenderFrame();
+    oled.clear();
+    oled.setCursor(0, 0);
+    oled.print(textLine1);
+    oled.setCursor(0, 2);
+    oled.print(textLine2);
+    oled.switchDisplayFrame();
     break;
   }
 }
@@ -88,25 +91,28 @@ void displayToast(const __FlashStringHelper* messageInProgmem, unsigned short du
   char message[strlen_P((const char*)messageInProgmem) + 1]; // Allocate a char array on the stack
   strcpy_P(message, (const char*)messageInProgmem); // Copy the characters from the __FlashStringHelper object into the char array
 
-  if(fontSize2x) display.set2X();
-  display.setRow(3);
-  display.setCol(0);
-  display.print(message);
+  // Tiny4k doesn't have a 2x size method
+  if(fontSize2x) ; 
+  
+  oled.setCursor(0, 2);
+  oled.print(message);
 
   waitForButton(duration);
   
-  display.set1X();
+  //display.set1X();
 }
 
 void displayToast(const char* message, unsigned short duration, bool fontSize2x = false) {
-  if(fontSize2x) display.set2X();
-  display.setRow(3);
-  display.setCol(0);
-  display.print(message);
+  
+  // Tiny4k doesn't have a 2x size method
+  if(fontSize2x) ;
+
+  oled.setCursor(0, 2);
+  oled.print(message);
   
   waitForButton(duration);
 
-  display.set1X();
+  //display.set1X();
 }
 
 #endif
